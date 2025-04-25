@@ -24,7 +24,7 @@ class Unit(Base):
 
 
 class UnitConversion(Base):
-    __tablename__ = "unit_conversions"
+    __tablename__ = "UNIT_CONVERSION"
     from_unit_id = Column(Integer, ForeignKey("UNITS.id"), primary_key=True)
     to_unit_id = Column(Integer, ForeignKey("UNITS.id"), primary_key=True)
 
