@@ -82,3 +82,12 @@ class RecipeSteps(Base):
     __table_args__ = (
         UniqueConstraint('recipe_id', 'step_order', name='uix_recipe_step_order'),
     )
+
+class IngredientUnitConversion(Base):
+    __tablename__="INGREDIENT_UNIT_CONVERSIONS"
+    ingredient_id=Column(Integer, ForeignKey("INGREDIENTS.id"), primary_key=True)
+    from_unit_id=Column(Integer, ForeignKey("UNITS.id"), primary_key=True)
+    to_unit_id=Column(Integer, ForeignKey("UNITS.id"), primary_key=True)
+    __table_args__ = (
+        UniqueConstraint('ingredient_id', 'from_unit_id','to_unit_id', name='uix_ingredient_from_to'),
+    )
