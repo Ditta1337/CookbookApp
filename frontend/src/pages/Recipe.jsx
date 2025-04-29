@@ -1,32 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import TwoColumns from "../components/TwoColumns";
 import Step from "../components/Step";
 import Ingredient from "../components/Ingredient";
-import { mockRecipeData } from "../../utils/network";
 import "./Recipe.css";
+import { useRecipeData } from "../../utils/useRecipeData";
 
 const Recipe = () => {
   let { id } = useParams();
 
-  const [recipe, setRecipe] = useState({
-    title: "Loading",
-    description: "Loading",
-    steps: [],
-    ingredients: [],
-  });
-
-  const { title, description, steps, ingredients } = recipe;
-
-  useEffect(() => {
-    async function fetchRecipe() {
-      const recipeData = await mockRecipeData(id);
-      setRecipe(recipeData);
-    }
-
-    fetchRecipe();
-  }, []);
+  const { title, description, steps, ingredients } = useRecipeData(id);
 
   return (
     <div>
