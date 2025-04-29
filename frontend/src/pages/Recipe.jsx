@@ -5,6 +5,7 @@ import TwoColumns from "../components/TwoColumns";
 import Step from "../components/Step";
 import Ingredient from "../components/Ingredient";
 import { mockRecipeData } from "../../utils/network";
+import "./Recipe.css";
 
 const Recipe = () => {
   let { id } = useParams();
@@ -34,6 +35,9 @@ const Recipe = () => {
         Recipe #{id}. {title}
       </h1>
       <p>{description}</p>
+      <div className="edit-button">
+        <a href={`/recipes/${id}/edit`}>Edytuj przepis</a>
+      </div>
       <TwoColumns
         left={
           <ul>

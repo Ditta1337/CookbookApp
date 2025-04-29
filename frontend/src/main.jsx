@@ -7,6 +7,7 @@ import App from './App.jsx'
 import ViewRecipes from './pages/ViewRecipes.jsx';
 import AddRecipe from './pages/AddRecipe.jsx';
 import Recipe from './pages/Recipe.jsx';
+import EditRecipe from './pages/EditRecipe.jsx';
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -16,6 +17,7 @@ createRoot(document.getElementById("root")).render(
         <Route path="/recipes/" element={<ViewRecipes />} />
         <Route path="/recipes/add" element={<AddRecipe />} />
         <Route path="/recipes/:id" element={<Recipe />} />
+        <Route path="/recipes/:id/edit" element={<EditRecipe />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>

@@ -9,10 +9,10 @@ const Navbar = () => {
         </a>
         <div className="navbar-buttons">
           <a className="navbar-button" href="/recipes/add">
-            Add recipe
+            Dodaj przepis
           </a>
           <a className="navbar-button" href="/recipes/">
-            View recipes
+            Pokaż przepisy
           </a>
         </div>
       </div>
