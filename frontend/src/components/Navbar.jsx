@@ -11,7 +11,7 @@ const Navbar = () => {
           <a className="navbar-button" href="/recipes/add">
             Add recipe
           </a>
-          <a className="navbar-button" href="/recipes/show">
+          <a className="navbar-button" href="/recipes/">
             View recipes
           </a>
         </div>
