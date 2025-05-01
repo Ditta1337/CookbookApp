@@ -6,21 +6,31 @@ import Step from "../components/Step";
 import Ingredient from "../components/Ingredient";
 import "./Recipe.css";
 import { useRecipeData } from "../../utils/useRecipeData";
+import Tag from "../components/Tag";
 
 const Recipe = () => {
   let { id } = useParams();
 
-  const { title, description, steps, ingredients } = useRecipeData(id);
+  const { title, description, tags, steps, ingredients } = useRecipeData(id);
 
   return (
     <div>
       <Navbar />
-      <h1>
-        Recipe #{id}. {title}
-      </h1>
-      <p>{description}</p>
-      <div className="edit-button">
-        <a href={`/recipes/${id}/edit`}>Edytuj przepis</a>
+      <div className="recipe-header">
+        <div className="tag-list">
+          {tags.map((tag) => (
+            <Tag key={tag} text={tag} />
+          ))}
+        </div>
+        <div className="recipe-info">
+          <h1>
+            Przepis #{id}. {title}
+          </h1>
+          <p>{description}</p>
+        </div>
+        <div className="edit-button">
+          <a href={`/recipes/${id}/edit`}>Edytuj przepis</a>
+        </div>
       </div>
       <TwoColumns
         left={

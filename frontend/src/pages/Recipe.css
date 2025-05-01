@@ -1,7 +1,23 @@
+.recipe-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 4px solid gray;
+}
+
+.recipe-info {
+  flex: 1;
+  text-align: left;
+  padding-left: 30px;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  width: 30%;
+}
+
 .edit-button {
-  position: absolute;
-  right: 32px;
-  top: 140px;
   background-color: #242424;
   border: 2px solid gray;
   border-radius: 2px;

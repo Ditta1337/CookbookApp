@@ -18,6 +18,7 @@ export const addAnimal = async (name, size) => {
 const recipeData = {
   title: "Nalesniki",
   description: "Przepyszne nalesniki z dzemem albo czymkolwiek innym co uwazasz za smaczne",
+  tags: ["na słodko", "wegetariańskie", "kolejny tag", "test", "dużo tagów", "kolorowo", "naleśniczki"],
   steps: [
     {
       title: "Zmieszaj skladniki",

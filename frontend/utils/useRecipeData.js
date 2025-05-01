@@ -5,6 +5,7 @@ export const useRecipeData = (id) => {
   const [recipe, setRecipe] = useState({
     title: "Loading",
     description: "Loading",
+    tags: [],
     steps: [],
     ingredients: [],
   });
