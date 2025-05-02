@@ -7,6 +7,7 @@ from backend import models, crud, schemas
 from backend.database import SessionLocal, engine
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from typing import List
 
 import os, sys
 
@@ -44,6 +45,100 @@ def create_new_recipe(recipe: schemas.RecipeCreate, db: Session = Depends(get_db
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+# Endpointy dla tabeli Units
+@app.get("/units/", response_model=List[schemas.UnitCreate])
+def read_all_units(db: Session = Depends(get_db)):
+    units = crud.get_all_units(db)
+    return units
+
+@app.post("/units/", response_model=schemas.UnitCreate)
+def create_new_unit(unit: schemas.UnitCreate, db: Session = Depends(get_db)):
+    try:
+        return crud.create_unit(db=db, id=unit.id, name=unit.name)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/units/{id}", response_model=schemas.UnitCreate)
+def read_unit(id: int, db: Session = Depends(get_db)):
+    unit = crud.get_unit(db, id=id)
+    if unit is None:
+        raise HTTPException(status_code=404, detail="Unit not found")
+    return unit
+
+@app.put("/units/{id}", response_model=schemas.UnitCreate)
+def update_unit(id: int, name: str, db: Session = Depends(get_db)):
+    try:
+        return crud.update_unit(db=db, id=id, name=name)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.delete("/units/{id}", response_model=dict)
+def delete_unit(id: int, db: Session = Depends(get_db)):
+    try:
+        return crud.delete_unit(db=db, id=id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+# Endpointy dla tabeli UnitConversion
+@app.get("/unit_conversions/", response_model=List[schemas.UnitConversionCreate])
+def read_all_unit_conversions(db: Session = Depends(get_db)):
+    unit_conversions = crud.get_all_unit_conversions(db)
+    return unit_conversions
+
+@app.post("/unit_conversions/", response_model=schemas.UnitConversionCreate)
+def create_new_unit_conversion(unit_conversion: schemas.UnitConversionCreate, db: Session = Depends(get_db)):
+    try:
+        return crud.create_unit_conversion(db=db, from_unit_id=unit_conversion.from_unit_id, to_unit_id=unit_conversion.to_unit_id, multiplier=unit_conversion.multiplier)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/unit_conversions/{from_unit_id}/{to_unit_id}", response_model=schemas.UnitConversionCreate)
+def read_unit_conversion(from_unit_id: int, to_unit_id: int, db: Session = Depends(get_db)):
+    unit_conversion = crud.get_unit_conversion(db, from_unit_id=from_unit_id, to_unit_id=to_unit_id)
+    if unit_conversion is None:
+        raise HTTPException(status_code=404, detail="Unit conversion not found")
+    return unit_conversion
+
+@app.put("/unit_conversions/{from_unit_id}/{to_unit_id}", response_model=schemas.UnitConversionCreate)
+def update_unit_conversion(from_unit_id: int, to_unit_id: int, multiplier: float, db: Session = Depends(get_db)):
+    try:
+        return crud.update_unit_conversion(db=db, from_unit_id=from_unit_id, to_unit_id=to_unit_id, multiplier=multiplier)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.delete("/unit_conversions/{from_unit_id}/{to_unit_id}", response_model=dict)
+def delete_unit_conversion(from_unit_id: int, to_unit_id: int, db: Session = Depends(get_db)):
+    try:
+        return crud.delete_unit_conversion(db=db, from_unit_id=from_unit_id, to_unit_id=to_unit_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+# Endpointy dla tabeli IngredientUnitConversion
+@app.get("/ingredient_unit_conversions/", response_model=List[schemas.IngredientUnitConversionCreate])
+def read_all_ingredient_unit_conversions(db: Session = Depends(get_db)):
+    ingredient_unit_conversions = crud.get_all_ingredient_unit_conversions(db)
+    return ingredient_unit_conversions
+
+@app.post("/ingredient_unit_conversions/", response_model=schemas.IngredientUnitConversionCreate)
+def create_new_ingredient_unit_conversion(ingredient_unit_conversion: schemas.IngredientUnitConversionCreate, db: Session = Depends(get_db)):
+    try:
+        return crud.create_ingredient_unit_conversion(db=db, ingredient_id=ingredient_unit_conversion.ingredient_id, from_unit_id=ingredient_unit_conversion.from_unit_id, to_unit_id=ingredient_unit_conversion.to_unit_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/ingredient_unit_conversions/{ingredient_id}/{from_unit_id}/{to_unit_id}", response_model=schemas.IngredientUnitConversionCreate)
+def read_ingredient_unit_conversion(ingredient_id: int, from_unit_id: int, to_unit_id: int, db: Session = Depends(get_db)):
+    ingredient_unit_conversion = crud.get_ingredient_unit_conversion(db, ingredient_id=ingredient_id, from_unit_id=from_unit_id, to_unit_id=to_unit_id)
+    if ingredient_unit_conversion is None:
+        raise HTTPException(status_code=404, detail="Ingredient unit conversion not found")
+    return ingredient_unit_conversion
+
+@app.delete("/ingredient_unit_conversions/{ingredient_id}/{from_unit_id}/{to_unit_id}", response_model=dict)
+def delete_ingredient_unit_conversion(ingredient_id: int, from_unit_id: int, to_unit_id: int, db: Session = Depends(get_db)):
+    try:
+        return crud.delete_ingredient_unit_conversion(db=db, ingredient_id=ingredient_id, from_unit_id=from_unit_id, to_unit_id=to_unit_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 # Static files (na końcu!)
 bundle_dir = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
