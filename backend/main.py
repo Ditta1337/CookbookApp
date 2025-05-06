@@ -45,6 +45,14 @@ def create_new_recipe(recipe: schemas.RecipeCreate, db: Session = Depends(get_db
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+# Endpointy dla tabeli Ingredients
+@app.post("/ingredients/", response_model=schemas.IngredientCreate)
+def create_new_ingredient(ingredient: schemas.IngredientCreate, db: Session = Depends(get_db)):
+    try:
+        return crud.create_ingredient(db=db, name=ingredient.name)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 # Endpointy dla tabeli Units
 @app.get("/units/", response_model=List[schemas.UnitCreate])
 def read_all_units(db: Session = Depends(get_db)):
@@ -54,10 +62,10 @@ def read_all_units(db: Session = Depends(get_db)):
 @app.post("/units/", response_model=schemas.UnitCreate)
 def create_new_unit(unit: schemas.UnitCreate, db: Session = Depends(get_db)):
     try:
-        return crud.create_unit(db=db, id=unit.id, name=unit.name)
+        return crud.create_unit(db=db, name=unit.name)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-
+    
 @app.get("/units/{id}", response_model=schemas.UnitCreate)
 def read_unit(id: int, db: Session = Depends(get_db)):
     unit = crud.get_unit(db, id=id)
@@ -84,6 +92,10 @@ def delete_unit(id: int, db: Session = Depends(get_db)):
 def read_all_unit_conversions(db: Session = Depends(get_db)):
     unit_conversions = crud.get_all_unit_conversions(db)
     return unit_conversions
+
+@app.get("/convertible_units/{unit_id}", response_model=List[schemas.UnitConversionCreate])
+def get_convertible_units_endpoint(unit_id: int, db: Session = Depends(get_db)):
+    return crud.get_convertible_units(db, unit_id=unit_id)
 
 @app.post("/unit_conversions/", response_model=schemas.UnitConversionCreate)
 def create_new_unit_conversion(unit_conversion: schemas.UnitConversionCreate, db: Session = Depends(get_db)):
@@ -118,6 +130,10 @@ def delete_unit_conversion(from_unit_id: int, to_unit_id: int, db: Session = Dep
 def read_all_ingredient_unit_conversions(db: Session = Depends(get_db)):
     ingredient_unit_conversions = crud.get_all_ingredient_unit_conversions(db)
     return ingredient_unit_conversions
+
+@app.get("/convertible_ingredient_units/{ingredient_id}/{unit_id}", response_model=List[schemas.IngredientUnitConversionCreate])
+def get_convertible_ingredient_units_endpoint(ingredient_id: int, unit_id: int, db: Session = Depends(get_db)):
+    return crud.get_convertible_ingredient_units(db, ingredient_id=ingredient_id, unit_id=unit_id)
 
 @app.post("/ingredient_unit_conversions/", response_model=schemas.IngredientUnitConversionCreate)
 def create_new_ingredient_unit_conversion(ingredient_unit_conversion: schemas.IngredientUnitConversionCreate, db: Session = Depends(get_db)):

@@ -12,8 +12,13 @@ class RecipeCreate(BaseModel):
     class Config:
         orm_mode = True  # a to jest po to zeby SQLAlchemy wiedzalo jak skonwetrowac na model
 
+class IngredientCreate(BaseModel):
+    name: str
+
+    class Config:
+        orm_mode = True
+
 class UnitCreate(BaseModel):
-    id: Optional[int]
     name: str
 
     class Config:
