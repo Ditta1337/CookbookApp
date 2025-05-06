@@ -37,7 +37,6 @@ class IngredientCreate(BaseModel):
         orm_mode = True
 
 class UnitCreate(BaseModel):
-    id: Optional[int]
     name: str
 
     class Config:

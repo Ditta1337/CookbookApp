@@ -4,21 +4,38 @@ from sqlalchemy.orm import Session
 from .models import *
 
 
+# Metody dla tabeli Ingredients
+def get_ingredient_by_name(db: Session, name: str):
+    return db.query(Ingredient).filter(Ingredient.name == name).first()
+
+def create_ingredient(db: Session, name: str):
+    try:
+        ingredient = Ingredient(name=name)
+        db.add(ingredient)
+        db.commit()
+        db.refresh(ingredient)
+        return ingredient
+    except IntegrityError:
+        db.rollback()
+        raise ValueError("Ingredient already exists.")
+
 # Metody dla tabeli Units
+def get_unit_by_name(db: Session, name: str):
+    return db.query(Unit).filter(Unit.name == name).first()
+
 def get_all_units(db: Session):
     return db.query(Unit).all()
 
-
-def create_unit(db: Session, id: int, name: str):
+def create_unit(db: Session, name: str):
     try:
-        unit = Unit(id=id, name=name)
+        unit = Unit(name=name)
         db.add(unit)
         db.commit()
         db.refresh(unit)
         return unit
     except IntegrityError:
         db.rollback()
-        raise ValueError("Unit with this ID already exists.")
+        raise ValueError("Unit already exists.")
 
 
 def get_unit(db: Session, id: int):
@@ -51,6 +68,9 @@ def delete_unit(db: Session, id: int):
 
 
 # Metody dla tabeli UnitConversion
+def get_convertible_units(db: Session, unit_id: int):
+    return db.query(UnitConversion).filter(UnitConversion.from_unit_id == unit_id).all()
+
 def get_all_unit_conversions(db: Session):
     return db.query(UnitConversion).all()
 
@@ -96,6 +116,9 @@ def delete_unit_conversion(db: Session, from_unit_id: int, to_unit_id: int):
 
 
 # Metody dla tabeli IngredientUnitConversion
+def get_convertible_ingredient_units(db: Session, ingredient_id: int, unit_id: int):
+    return db.query(IngredientUnitConversion).filter(IngredientUnitConversion.ingredient_id == ingredient_id, IngredientUnitConversion.from_unit_id == unit_id).all()
+
 def get_all_ingredient_unit_conversions(db: Session):
     return db.query(IngredientUnitConversion).all()
 
