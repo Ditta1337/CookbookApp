@@ -261,3 +261,9 @@ def link_ingredient_to_recipe(db: Session, recipe_id: int, ingredient_id: int, q
         db.commit()
     except IntegrityError:
         db.rollback()
+
+def get_all_tags(db: Session):
+    return db.query(Tag).all()
+
+def get_tags_by_name_pattern(db: Session, pattern: str, limit: int):
+    return db.query(Tag).filter(Tag.name.contains(pattern)).limit(limit).all()

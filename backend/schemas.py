@@ -14,11 +14,13 @@ class RecipeCreate(BaseModel):
         orm_mode = True  # a to jest po to zeby SQLAlchemy wiedzalo jak skonwetrowac na model
 
 class TagCreate(BaseModel):
+    name: str
+
+class TagRead(TagCreate):
     id: int
-    name:str
 
     class Config:
-        orm_mode = True
+        from_attributes = True  # a to jest podobno jakby na odwrot
 
 class StepCreate(BaseModel):
     id: int

@@ -1,3 +1,8 @@
+import os
+#TODO: usunac
+os.remove("CookBook.db")
+
+import sys
 from http.client import HTTPException
 
 from fastapi import FastAPI, Depends, HTTPException
@@ -112,7 +117,26 @@ def create_new_recipe(recipe: schemas.RecipeCreate,
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         db.rollback()
+        print(e)
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+
+@app.post("/tags/post", response_model=schemas.TagRead)
+def create_tag(tag: schemas.TagCreate, db: Session = Depends(get_db)):
+    existing_tag = crud.get_tag_by_name(db, tag.name)
+    if existing_tag:
+        return existing_tag
+
+    new_tag = crud.create_tag(db, tag.name)
+    return new_tag
+
+@app.get("/tags/get_all", response_model=List[schemas.TagRead])
+def read_all_tags(db: Session = Depends(get_db)):
+    return crud.get_all_tags(db)
+
+@app.get("/tags/search/", response_model=List[schemas.TagRead])
+def search_tags(pattern: str, limit: int = 10, db: Session = Depends(get_db)):
+    return crud.get_tags_by_name_pattern(db, pattern, limit)
 
 # Endpointy dla tabeli Ingredients
 @app.post("/ingredients/", response_model=schemas.IngredientCreate)
