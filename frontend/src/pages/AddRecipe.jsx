@@ -78,6 +78,23 @@ const AddRecipe = () => {
   const handleAddIngredient = () => {
     setRecipeIngredients([...recipeIngredients, { id: Date.now(), name: '', quantity: 0, unit: '' }]);
   }
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const recipe = {
+      ...recipeData,
+      steps: recipeSteps,
+      ingredients: recipeIngredients,
+    };
+    console.log(recipe);
+    // tutaj dodaj kod do wyslania przepisu do backendu
+    fetch('http://localhost:8080/recipes', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(recipe),
+    })
+  }
 
 
   return(
@@ -88,7 +105,7 @@ const AddRecipe = () => {
           <fieldset className='flex flex-col border py-1 px-4'>
             <legend className='text-5xl font-semibold mb-2'>Dodaj Przepis</legend>
             <label className="text-2xl font-semibold">Nazwa przepisu:</label>
-            <input className='border-2 border-gray-300 rounded-md py-2 my-4' 
+            <input className='border-2 border-gray-300 rounded-md py-2 px-1 my-4' 
             id="recipeTitle" 
             name="recipeTitle" 
             type='text' 
@@ -96,7 +113,7 @@ const AddRecipe = () => {
             onChange={handleInput} 
             required />
             <label className="text-2xl font-semibold">Opis przepisu:</label>
-            <input className='border-2 border-gray-300 rounded-md py-2 my-4' 
+            <input className='border-2 border-gray-300 rounded-md py-2 px-1 my-4' 
             id="recipeDescription" 
             name="recipeDescription" 
             type='text' 
@@ -127,7 +144,7 @@ const AddRecipe = () => {
                 </div>
               ))}
               <div>
-              <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+              <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold my-2 py-2 px-4 rounded'
               type='button'
               onClick={handleAddIngredient}>Dodaj składnik</button>
             </div>
@@ -150,11 +167,15 @@ const AddRecipe = () => {
                 </div>
               ))}
               <div>
-              <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+              <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold my-2 py-2 px-4 rounded'
               type='button'
               onClick={handleAddStep}>Dodaj krok</button>
             </div>
           </fieldset>
+          <button className='my-4'
+          type='submit'
+          onSubmit={handleSubmit}
+          >Dodaj przepis</button>
         </form>
       </div>
   </div>
