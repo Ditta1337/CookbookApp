@@ -8,6 +8,7 @@ class Recipe(Base):
     __tablename__ = "RECIPES"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
+    description=Column(String)
     date = Column(Date, index=True)
 
 
@@ -43,7 +44,8 @@ class Ingredient(Base):
 class Step(Base):
     __tablename__ = "STEPS"
     id = Column(Integer, primary_key=True, index=True)
-    step = Column(String, index=True)
+    title = Column(String, index=True)
+    description = Column(String)
 
 
 class RecipeToTag(Base):
@@ -88,6 +90,11 @@ class IngredientUnitConversion(Base):
     ingredient_id=Column(Integer, ForeignKey("INGREDIENTS.id"), primary_key=True)
     from_unit_id=Column(Integer, ForeignKey("UNITS.id"), primary_key=True)
     to_unit_id=Column(Integer, ForeignKey("UNITS.id"), primary_key=True)
+
+    ingredient = relationship("Ingredient", backref="unit_conversions")
+    from_unit = relationship("Unit", foreign_keys=[from_unit_id], backref="conversions_from")
+    to_unit = relationship("Unit", foreign_keys=[to_unit_id], backref="conversions_to")
+
     __table_args__ = (
         UniqueConstraint('ingredient_id', 'from_unit_id','to_unit_id', name='uix_ingredient_from_to'),
     )
