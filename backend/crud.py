@@ -232,6 +232,9 @@ def link_step_to_recipe(db: Session, recipe_id: int, step_id: int, step_order: i
 def get_ingredient_by_name(db: Session, name: str):
     return db.query(Ingredient).filter(Ingredient.name == name).first()
 
+def get_units_for_ingredient(db: Session, ingredient_id: int):
+    return db.query(Unit).join(IngredientUnitConversion).filter(IngredientUnitConversion.ingredient_id == ingredient_id).all()
+
 
 from sqlalchemy.exc import IntegrityError
 

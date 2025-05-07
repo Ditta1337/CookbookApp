@@ -146,6 +146,15 @@ def create_new_ingredient(ingredient: schemas.IngredientCreate, db: Session = De
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@app.get("/ingredients/{ingredient_name}/units", response_model=List[schemas.UnitCreate])
+def get_units_for_ingredient(ingredient_name: str, db: Session = Depends(get_db)):
+    ingredient = crud.get_ingredient_by_name(db, ingredient_name)
+    if not ingredient:
+        raise HTTPException(status_code=404, detail="Ingredient not found")
+
+    units = crud.get_units_for_ingredient(db, ingredient_id=ingredient.id)
+    return units
+
 # Endpointy dla tabeli Units
 @app.get("/units/", response_model=List[schemas.UnitCreate])
 def read_all_units(db: Session = Depends(get_db)):
