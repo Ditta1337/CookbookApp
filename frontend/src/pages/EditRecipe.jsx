@@ -1,24 +1,42 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
 import Navbar from "../components/Navbar";
-import { useParams } from "react-router-dom";
-import { useRecipeData } from "../../utils/useRecipeData";
+import {useParams} from "react-router-dom";
+import {useRecipeData} from "../../utils/useRecipeData";
+import TagCreator from "../components/tag_creator/TagCreator.jsx";
+import {mockModifyTags} from "../../utils/network.js";
 
-// probably the same as Recipe.tsx but things swapped to <input> and
-// holding modified recipe data in useState
-// which is sent to backend upon submitting the edits
 const EditRecipe = () => {
-  let { id } = useParams();
+    let {id} = useParams();
 
-  const { title, description, steps, ingredients } = useRecipeData(id);
+    const {title, description, steps, ingredients, tags} = useRecipeData(id);
+    const [tagsState, setTagsState] = useState(null);
 
-  return (
-    <div>
-      <Navbar />
-      <div>
-        <h1>Edit Recipe</h1>
-      </div>
-    </div>
-  );
+    useEffect(() => {
+        if (tags) {
+            setTagsState(tags);
+        }
+    }, [tags]);
+
+    const handleSetTags = (newTags) => {
+        setTagsState(newTags);
+        mockModifyTags(1, newTags).then();
+    };
+
+    if (!tags) {
+        return <div>Loading...</div>;
+    }
+
+    return (
+        <div>
+            <Navbar/>
+            <div>
+                <h1>Edit Recipe</h1>
+                <div>
+                    {tagsState != null && <TagCreator tags={tagsState} setTags={handleSetTags}/>}
+                </div>
+            </div>
+        </div>
+    );
 };
 
 export default EditRecipe;

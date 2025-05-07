@@ -15,7 +15,7 @@ export const addAnimal = async (name, size) => {
 };
 
 // mock na potrzeby developmentu
-const recipeData = {
+let recipeData = {
   title: "Nalesniki",
   description: "Przepyszne nalesniki z dzemem albo czymkolwiek innym co uwazasz za smaczne",
   steps: [
@@ -45,6 +45,11 @@ const recipeData = {
       unit: "szt",
     },
   ],
+  tags: [
+      "Naleśniki",
+      "Pyszne",
+      "Słodkie"
+  ]
 };
 
 export const mockRecipeData = async (recipeId) => {
@@ -56,3 +61,34 @@ export const mockRecipeData = async (recipeId) => {
 
   return recipe;
 };
+
+export const modifyTags = async (recipeId, tags) => {
+  // TODO: move server address to .env file
+  const response = await fetch(`http://localhost:8000/api/recipes/${recipeId}/tags`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ tags }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to modify tags");
+  }
+
+  const updatedTags = await response.json();
+  return updatedTags;
+};
+
+export const mockModifyTags = async (recipeId, tags) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      recipeData = {
+        ...recipeData,
+        tags,
+      };
+      resolve(tags);
+    }, 500);
+  });
+};
+

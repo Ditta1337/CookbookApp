@@ -7,6 +7,7 @@ export const useRecipeData = (id) => {
     description: "Loading",
     steps: [],
     ingredients: [],
+    tags: null,
   });
 
   useEffect(() => {
