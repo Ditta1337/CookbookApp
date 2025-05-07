@@ -14,6 +14,9 @@ const Navbar = () => {
           <a className="navbar-button" href="/recipes/">
             Pokaż przepisy
           </a>
+          <a className="navbar-button" href="/ingredient-creator/">
+            Kreator składników
+          </a>
         </div>
       </div>
     </nav>
