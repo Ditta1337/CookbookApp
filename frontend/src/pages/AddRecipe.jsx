@@ -104,7 +104,6 @@ const AddRecipe = () => {
       steps: recipeSteps,
       ingredients: recipeIngredients,
     };
-    console.log(recipe);
     // tutaj dodaj kod do wyslania przepisu do backendu
     fetch('http://localhost:8080/recipes/post', {
       method: 'POST',

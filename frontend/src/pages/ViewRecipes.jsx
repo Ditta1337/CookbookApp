@@ -7,7 +7,7 @@ const ViewRecipes = () => {
       <Navbar />
       <div style={{ display: "flex", flexDirection: "column" }}>
         {[1, 2, 3, 4, 5, 6, 7].map((recipeId) => (
-          <a href={`/recipes/${recipeId}`}>Przepis o id {recipeId}</a>
+          <a key={recipeId} href={`/recipes/${recipeId}`}>Przepis o id {recipeId}</a>
         ))}
       </div>
     </div>
