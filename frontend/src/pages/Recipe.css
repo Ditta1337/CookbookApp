@@ -15,3 +15,11 @@
 .edit-button a {
   color: rgba(255, 255, 255, 0.87);
 }
+
+.ingredient-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
