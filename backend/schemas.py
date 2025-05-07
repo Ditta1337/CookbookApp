@@ -32,8 +32,6 @@ class StepCreate(BaseModel):
 
 class IngredientCreate(BaseModel):
     name:str
-    quantity: int
-    unit:str
 
     class Config:
         orm_mode = True
