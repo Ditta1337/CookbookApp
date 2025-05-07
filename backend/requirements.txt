@@ -1,2 +1,3 @@
 fastapi[standard]
 pyinstaller
+sqlalchemy
