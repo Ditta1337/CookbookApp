@@ -183,6 +183,26 @@ def update_recipe(db: Session, id: int, name: str, date: date):
     else:
         raise ValueError(f"Recipe with ID {id} not found.")
 
+def update_recipe_tags(db: Session, id: int, tags: list[str]):
+    recipe = db.query(Recipe).filter(Recipe.id == id).first()
+    if not recipe:
+        raise ValueError(f"Recipe with ID {id} not found.")
+
+    db.query(RecipeToTag).filter(RecipeToTag.recipe_id == id).delete()
+    db.commit()
+
+    for tag_name in tags:
+        tag = db.query(Tag).filter(Tag.name == tag_name).first()
+        if not tag:
+            tag = Tag(name=tag_name)
+            db.add(tag)
+            db.commit()
+            db.refresh(tag)
+
+        link = RecipeToTag(recipe_id=id, tag_id=tag.id)
+        db.add(link)
+
+    db.commit()
 
 def delete_recipe(db: Session, id: int):
     recipe = db.query(Recipe).filter(Recipe.id == id).first()

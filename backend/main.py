@@ -43,7 +43,7 @@ app = FastAPI()
 
 
 # Recipes
-@app.post("/recipes/post/")
+@app.post("/recipes/create")
 def create_new_recipe(recipe: schemas.RecipeCreate,
                       tags: list[schemas.TagCreate],
                       steps: list[schemas.StepCreate],
@@ -120,8 +120,22 @@ def create_new_recipe(recipe: schemas.RecipeCreate,
         print(e)
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
+@app.put("/recipes/{id}/tags", response_model=list[str])
+def update_recipes_tags(id: int, tags: list[schemas.TagCreate], db: Session = Depends(get_db)):
+    recipe = crud.get_recipe(db, id)
+    if not recipe:
+        raise HTTPException(status_code=404, detail=f"Recipe with ID {id} not found")
 
-@app.post("/tags/post", response_model=schemas.TagRead)
+    try:
+        updated_tags = crud.update_recipe_tags(db, id=id, tags=[tag.name for tag in tags])
+
+        return [tag.name for tag in updated_tags]
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@app.post("/tags/create", response_model=schemas.TagRead)
 def create_tag(tag: schemas.TagCreate, db: Session = Depends(get_db)):
     existing_tag = crud.get_tag_by_name(db, tag.name)
     if existing_tag:
@@ -134,7 +148,7 @@ def create_tag(tag: schemas.TagCreate, db: Session = Depends(get_db)):
 def read_all_tags(db: Session = Depends(get_db)):
     return crud.get_all_tags(db)
 
-@app.get("/tags/search/", response_model=List[schemas.TagRead])
+@app.get("/tags/search", response_model=List[schemas.TagRead])
 def search_tags(pattern: str, limit: int = 10, db: Session = Depends(get_db)):
     return crud.get_tags_by_name_pattern(db, pattern, limit)
 
