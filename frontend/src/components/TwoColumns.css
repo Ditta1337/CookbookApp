@@ -1,0 +1,19 @@
+.two-columns {
+  width: 100%;
+  display: flex;
+}
+
+.two-columns .left-column,
+.two-columns .right-column {
+  box-sizing: border-box;
+  text-align: left;
+  padding: 30px;
+}
+
+.two-columns .left-column {
+  border-right: 2px solid gray;
+}
+
+.two-columns .right-column {
+  border-left: 2px solid gray;
+}
