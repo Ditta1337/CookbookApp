@@ -8,7 +8,7 @@ class RecipeCreate(BaseModel):
     title: str
     description: str
     date: date
-    img:str
+    img: str
     tags: List[str]
     steps: List["StepCreate"]
     ingredients: List["RecipeIngredientCreate"]
@@ -17,6 +17,7 @@ class RecipeUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     date: date
+    img: Optional[str] = None
     tags: Optional[List[str]] = None
     steps: Optional[List["StepCreate"]] = None
     ingredients: Optional[List["RecipeIngredientCreate"]] = None
