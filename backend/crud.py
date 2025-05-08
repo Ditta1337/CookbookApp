@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List
 from .models import *
-import schemas
+from . import schemas
 
 
 # Metody dla tabeli Ingredients
