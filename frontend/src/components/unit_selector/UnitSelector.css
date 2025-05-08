@@ -1,0 +1,31 @@
+.unit-selector {
+    width: 100px;
+    color: black;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    appearance: none;
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+}
+
+.unit-selector:focus {
+    outline: none;
+    border-color: #666;
+    box-shadow: 0 0 0 2px rgba(100, 100, 100, 0.2);
+}
+
+optgroup {
+    font-style: italic;
+    color: #333;
+}
+
+option {
+    padding: 0.25rem 0.5rem;
+}
+
+option:disabled {
+    color: #999;
+}
