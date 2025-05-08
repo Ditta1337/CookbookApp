@@ -49,8 +49,11 @@ const AddRecipe = () => {
   ]);
 
   const { title, description, tags, steps, ingredients } = useRecipeData(recipeId);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  if (title != recipeData.name && recipeData.name == "Ładowanie") {
+  if (!isLoaded && title != "Ładowanie") {
+    setIsLoaded(true);
+
     setRecipeData((data) => ({ ...data, name: title, description }));
     setRecipeTags(tags.map((name, id) => ({ id, name })));
     setRecipeSteps(steps.map(({ title, description }, id) => ({ id, title, description })));
@@ -136,13 +139,13 @@ const AddRecipe = () => {
       ingredients: recipeIngredients,
     };
     // tutaj dodaj kod do wyslania przepisu do backendu
-    fetch("http://localhost:8080/recipes/post", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(json),
-    });
+    // fetch("http://localhost:8080/recipes/post", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(json),
+    // });
     console.log(json);
   };
 
@@ -311,7 +314,7 @@ const AddRecipe = () => {
               </button>
             </div>
           </fieldset>
-          <button className="my-4" type="submit" onSubmit={handleSubmit}>
+          <button className="my-4" type="submit" onClick={handleSubmit}>
             Edytuj przepis
           </button>
         </form>
