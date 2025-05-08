@@ -2,6 +2,7 @@ from sqlite3 import IntegrityError
 from datetime import date
 from sqlalchemy.orm import Session
 from .models import *
+import schemas
 
 
 # Metody dla tabeli Ingredients
@@ -156,20 +157,163 @@ def delete_ingredient_unit_conversion(db: Session, ingredient_id: int, from_unit
             f"Ingredient unit conversion for ingredient ID {ingredient_id} from unit ID {from_unit_id} to unit ID {to_unit_id} not found.")
 
 
-def create_recipe(db: Session, id: int, name: str, description: str, date: date):
-    try:
-        recipe = Recipe(id=id, name=name, date=date, description=description)
-        db.add(recipe)
-        db.commit()
-        db.refresh(recipe)
-        return recipe
-    except IntegrityError as e:
-        db.rollback()
-        raise ValueError(f"IntegrityError: {e}")
+def create_recipe(db: Session, recipe_data: schemas.RecipeCreate):
+    # recipe
+    recipe = Recipe(
+        name=recipe_data.title,
+        description=recipe_data.description,
+        date=recipe_data.date
+    )
+
+    db.add(recipe)
+    db.commit()
+    db.refresh(recipe)
+
+    # tags
+    for tag_name in recipe_data.tags:
+        tag = db.query(Tag).filter(Tag.name == tag_name).first()
+        if not tag:
+            tag = Tag(name=tag_name)
+            db.add(tag)
+            db.commit()
+            db.refresh(tag)
+
+        recipe_tag = RecipeToTag(recipe_id=recipe.id, tag_id=tag.id)
+        db.add(recipe_tag)
+
+    # ingredients
+    for ingredient_data in recipe_data.ingredients:
+        ingredient = db.query(Ingredient).filter(Ingredient.name == ingredient_data.name).first()
+        if not ingredient:
+            ingredient = Ingredient(name=ingredient_data.name)
+            db.add(ingredient)
+            db.commit()
+            db.refresh(ingredient)
+
+        unit = db.query(Unit).filter(Unit.name == ingredient_data.unit).first()
+        if not unit:
+            unit = Unit(name=ingredient_data.unit)
+            db.add(unit)
+            db.commit()
+            db.refresh(unit)
+
+        recipe_ingredient = RecipesToIngredients(
+            recipe_id=recipe.id,
+            ingredient_id=ingredient.id,
+            quantity=ingredient_data.quantity,
+            unit_id=unit.id
+        )
+        db.add(recipe_ingredient)
+
+    for step_order, step_data in enumerate(recipe_data.steps, start=1):
+        step = db.query(Step).filter(Step.title == step_data.title).first()
+        if not step:
+            step = Step(
+                title=step_data.title,
+                description=step_data.description
+            )
+            db.add(step)
+            db.commit()
+            db.refresh(step)
+
+        recipe_step = RecipeSteps(
+            recipe_id=recipe.id,
+            step_id=step.id,
+            step_order=step_order
+        )
+        db.add(recipe_step)
+
+    db.commit()
 
 
-def get_recipe(db: Session, id: int):
-    return db.query(Recipe).filter(Recipe.id == id).first()
+
+    return recipe
+
+
+def get_recipe_by_id(db: Session, id: int):
+    recipe=db.query(Recipe).filter(Recipe.id == id).first()
+    #tags
+    tag_ids = (
+        db.query(RecipeToTag.tag_id)
+        .filter(RecipeToTag.recipe_id == id)
+        .subquery()
+    )
+    tags = db.query(Tag).filter(Tag.id.in_(tag_ids)).all()
+    #steps
+    step_ids = (
+        db.query(RecipeSteps.step_id)
+        .filter(RecipeSteps.recipe_id == id)
+        .subquery()
+    )
+    steps = db.query(Step).filter(Step.id.in_(step_ids)).all()
+    #ingredients
+    ingredients = (
+        db.query(RecipesToIngredients.quantity, Ingredient, Unit)
+        .join(Ingredient, Ingredient.id == RecipesToIngredients.ingredient_id)
+        .join(Unit, Unit.id == RecipesToIngredients.unit_id)
+        .filter(RecipesToIngredients.recipe_id == id)
+        .all()
+    )
+
+    recipeData = {
+        "id":recipe.id,
+        "title":recipe.name,
+        "description":recipe.description,
+        "tags":[tag.name for tag in tags],
+        "steps" : [ {"title":step.title,
+                   "description":step.description
+                   } for step in steps],
+        "ingredients":[{
+                "name": ingredient[1].name,
+                "quantity": ingredient[0],
+                "unit": ingredient[2].name,
+        } for ingredient in ingredients]
+    }
+
+    return recipeData
+
+
+def get_recipes_by_name(db: Session, name: str, limit_: int):
+    recipes = db.query(Recipe).filter(Recipe.name.ilike(f"%{name}%")).limit(limit_).all()
+
+    recipe_data = []
+    for recipe in recipes:
+        tag_ids = (
+            db.query(RecipeToTag.tag_id)
+            .filter(RecipeToTag.recipe_id == recipe.id)
+            .subquery()
+        )
+        tags = db.query(Tag).filter(Tag.id.in_(tag_ids)).all()
+
+        step_ids = (
+            db.query(RecipeSteps.step_id)
+            .filter(RecipeSteps.recipe_id == recipe.id)
+            .subquery()
+        )
+        steps = db.query(Step).filter(Step.id.in_(step_ids)).all()
+
+        ingredients = (
+            db.query(RecipesToIngredients.quantity, Ingredient, Unit)
+            .join(Ingredient, Ingredient.id == RecipesToIngredients.ingredient_id)
+            .join(Unit, Unit.id == RecipesToIngredients.unit_id)
+            .filter(RecipesToIngredients.recipe_id == recipe.id)
+            .all()
+        )
+
+        recipe_data.append({
+            "id": recipe.id,
+            "title": recipe.name,
+            "description": recipe.description,
+            "tags": [tag.name for tag in tags],
+            "steps": [{"title": step.title, "description": step.description} for step in steps],
+            "ingredients": [{
+                "name": ingredient[1].name,
+                "quantity": ingredient[0],
+                "unit": ingredient[2].name,
+            } for ingredient in ingredients]
+        })
+
+    return recipe_data
 
 
 def update_recipe(db: Session, id: int, name: str, date: date):
