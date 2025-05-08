@@ -1,6 +1,8 @@
 from sqlite3 import IntegrityError
 from datetime import date
 from sqlalchemy.orm import Session
+from sqlalchemy import func
+from typing import List
 from .models import *
 import schemas
 
@@ -341,6 +343,24 @@ def delete_recipe(db: Session, id: int):
 def get_tag_by_name(db: Session, name: str):
     return db.query(Tag).filter(Tag.name == name).first()
 
+def get_recipes_by_tags(db: Session, tag_names: List[str]):
+    tags = db.query(Tag).filter(Tag.name.in_(tag_names)).all()
+
+    if len(tags) != len(tag_names):
+        raise ValueError("One or more tags not found")
+
+    tag_ids = [tag.id for tag in tags]
+
+    recipes = (
+        db.query(Recipe.id)
+        .join(RecipeToTag, RecipeToTag.recipe_id == Recipe.id)
+        .filter(RecipeToTag.tag_id.in_(tag_ids))
+        .group_by(Recipe.id)
+        .having(func.count(RecipeToTag.tag_id) == len(tag_ids))
+        .all()
+    )
+
+    return [recipe.id for recipe in recipes]
 
 def create_tag(db: Session, name: str):
     tag = Tag(name=name)

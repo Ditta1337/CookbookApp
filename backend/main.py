@@ -70,6 +70,18 @@ def search_recipes(name: str, limit: int = 10, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/recipes/by_tags", response_model=List[int])
+def get_recipes_by_tags(tag_names: List[str], db: Session = Depends(get_db)):
+    try:
+        recipe_ids = crud.get_recipes_by_tags(db, tag_names)
+        if not recipe_ids:
+            raise HTTPException(status_code=404, detail="No recipes found matching the tags")
+        return recipe_ids
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/tags/post", response_model=schemas.TagRead)
 def create_tag(tag: schemas.TagCreate, db: Session = Depends(get_db)):
     existing_tag = crud.get_tag_by_name(db, tag.name)
