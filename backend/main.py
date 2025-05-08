@@ -1,18 +1,17 @@
 import os
 #TODO: usunac
-os.remove("CookBook.db")
+# os.remove("CookBook.db")
 
 import sys
 from http.client import HTTPException
 
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 import uvicorn
 from backend import models, crud, schemas
 from backend.database import SessionLocal, engine
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse
 from typing import List
 
 
@@ -43,83 +42,33 @@ app = FastAPI()
 
 
 # Recipes
-@app.post("/recipes/post/")
-def create_new_recipe(recipe: schemas.RecipeCreate,
-                      tags: list[schemas.TagCreate],
-                      steps: list[schemas.StepCreate],
-                      ingredients: list[schemas.IngredientCreate],
-                      db: Session = Depends(get_db)):
+@app.post("/recipes", response_model=schemas.RecipeFullOut)
+def create_recipe_endpoint(recipe_data: schemas.RecipeCreate, db: Session = Depends(get_db)):
     try:
-        created_recipe = crud.create_recipe(
-            db=db,
-            id=recipe.id,
-            name=recipe.name,
-            description=recipe.description,
-            date=recipe.date
-        )
-
-        tag_results = []
-        for tag in tags:
-            existing_tag = crud.get_tag_by_name(db, tag.name)
-            if not existing_tag:
-                existing_tag = crud.create_tag(db, name=tag.name)
-
-            crud.link_recipe_to_tag(db, recipe_id=created_recipe.id, tag_id=existing_tag.id)
-            tag_results.append({
-                "id": existing_tag.id,
-                "name": existing_tag.name
-            })
-
-        step_results = []
-        for order, step in enumerate(steps, start=1):
-            created_step = crud.create_step(db, step_id=step.id, title=step.title, description=step.description)
-            crud.link_step_to_recipe(db, recipe_id=created_recipe.id, step_id=created_step.id, step_order=order)
-            step_results.append({
-                "id": created_step.id,
-                "title": created_step.title,
-                "description": created_step.description
-            })
-
-        ingredient_results = []
-        for ingredient in ingredients:
-            existing_ingredient = crud.get_ingredient_by_name(db, ingredient.name)
-            if not existing_ingredient:
-                existing_ingredient = crud.create_ingredient(db, name=ingredient.name)
-
-            unit = crud.get_unit_by_name(db, ingredient.unit)
-            crud.link_ingredient_to_recipe(
-                db,
-                recipe_id=created_recipe.id,
-                ingredient_id=existing_ingredient.id,
-                quantity=ingredient.quantity,
-                unit_id=unit.id
-            )
-            ingredient_results.append({
-                "name": existing_ingredient.name,
-                "quantity": ingredient.quantity,
-                "unit": unit.name
-            })
-
-        return JSONResponse(content={
-            "recipe": {
-                "id": created_recipe.id,
-                "name": created_recipe.name,
-                "description": created_recipe.description,
-                "date": created_recipe.date.isoformat()
-            },
-            "tags": tag_results,
-            "steps": step_results,
-            "ingredients": ingredient_results
-        }, status_code=200)
-
-    except ValueError as e:
-        db.rollback()
-        raise HTTPException(status_code=400, detail=str(e))
+        recipe = crud.create_recipe(db, recipe_data)
+        return crud.get_recipe_by_id(db, recipe.id)
     except Exception as e:
-        db.rollback()
-        print(e)
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
+@app.get("/recipes/{id}",response_model=schemas.RecipeFullOut)
+def get_recipe_by_id(id: int,db: Session = Depends(get_db)):
+    try:
+        recipe = crud.get_recipe_by_id(db,id)
+        if recipe is None:
+            raise HTTPException(status_code=404, detail="Recipe not found")
+        return recipe
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/recipes/search/{name}/{limit}", response_model=List[schemas.RecipeFullOut])
+def search_recipes(name: str, limit: int = 10, db: Session = Depends(get_db)):
+    try:
+        recipes = crud.get_recipes_by_name(db, name, limit)
+        if not recipes:
+            raise HTTPException(status_code=404, detail="No recipes found matching the query")
+        return recipes
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/tags/post", response_model=schemas.TagRead)
 def create_tag(tag: schemas.TagCreate, db: Session = Depends(get_db)):
