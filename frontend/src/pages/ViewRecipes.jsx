@@ -12,7 +12,7 @@ const ViewRecipes = () => {
     const term = event.target.value;
     setSearchTerm(term);
     setFilteredRecipes(
-      recipeIds.filter((title) => title.includes(term))
+      recipeIds.filter((title) => title.toLowerCase().includes(term.toLowerCase()))
     );
   }
 
