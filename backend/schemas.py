@@ -13,6 +13,14 @@ class RecipeCreate(BaseModel):
     steps: List["StepCreate"]
     ingredients: List["RecipeIngredientCreate"]
 
+class RecipeUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    date: date
+    tags: Optional[List[str]] = None
+    steps: Optional[List["StepCreate"]] = None
+    ingredients: Optional[List["RecipeIngredientCreate"]] = None
+
 class RecipeSearchQuery(BaseModel):
     name: str
     limit: Optional[int] = 10  # Domyślnie 10
