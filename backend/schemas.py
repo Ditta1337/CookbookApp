@@ -2,12 +2,13 @@ from pydantic import BaseModel
 from datetime import date
 from typing import List, Optional
 
-#Ten plik jest po to żeby fast api wiedzalo co ma dostac z http
+#Ten plik jest po to żeby fast api wiedzalo co ma dostac z http i odwrotnie
 
 class RecipeCreate(BaseModel):
     title: str
     description: str
     date: date
+    img:str
     tags: List[str]
     steps: List["StepCreate"]
     ingredients: List["RecipeIngredientCreate"]
@@ -78,6 +79,7 @@ class StepOut(BaseModel):
 class RecipeFullOut(BaseModel):
     id:int
     title: str
+    img:str
     description: str
     tags: List[str]
     steps: List[StepOut]

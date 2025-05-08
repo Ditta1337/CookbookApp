@@ -164,7 +164,8 @@ def create_recipe(db: Session, recipe_data: schemas.RecipeCreate):
     recipe = Recipe(
         name=recipe_data.title,
         description=recipe_data.description,
-        date=recipe_data.date
+        date=recipe_data.date,
+        img=recipe_data.img
     )
 
     db.add(recipe)
@@ -227,8 +228,6 @@ def create_recipe(db: Session, recipe_data: schemas.RecipeCreate):
 
     db.commit()
 
-
-
     return recipe
 
 
@@ -260,6 +259,7 @@ def get_recipe_by_id(db: Session, id: int):
     recipeData = {
         "id":recipe.id,
         "title":recipe.name,
+        "img":recipe.img,
         "description":recipe.description,
         "tags":[tag.name for tag in tags],
         "steps" : [ {"title":step.title,
@@ -305,6 +305,7 @@ def get_recipes_by_name(db: Session, name: str, limit_: int):
         recipe_data.append({
             "id": recipe.id,
             "title": recipe.name,
+            "img":recipe.img,
             "description": recipe.description,
             "tags": [tag.name for tag in tags],
             "steps": [{"title": step.title, "description": step.description} for step in steps],

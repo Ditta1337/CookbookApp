@@ -8,6 +8,7 @@ class Recipe(Base):
     __tablename__ = "RECIPES"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
+    img=Column(String)
     description=Column(String)
     date = Column(Date, index=True)
 
