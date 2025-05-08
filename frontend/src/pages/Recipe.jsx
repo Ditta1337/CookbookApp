@@ -6,12 +6,13 @@ import Step from "../components/Step";
 import Ingredient from "../components/Ingredient";
 import "./Recipe.css";
 import { useRecipeData } from "../../utils/useRecipeData";
+import Tag from "../components/Tag";
 import UnitSelector from "../components/unit_selector/UnitSelector.jsx";
 import { units } from "../components/unit_selector/units_mock.js";
 
 const Recipe = () => {
     const { id } = useParams();
-    const { title, description, steps, ingredients: initialIngredients } = useRecipeData(id);
+    const { title, description, tags, steps, ingredients: initialIngredients } = useRecipeData(id);
 
     const [ingredients, setIngredients] = useState([]);
 
@@ -23,21 +24,28 @@ const Recipe = () => {
 
     const handleUnitChange = (index, newUnit) => {
         setIngredients((prev) =>
-            prev.map((ing, i) =>
-                i === index ? { ...ing, unit: newUnit } : ing
-            )
+            prev.map((ing, i) => (i === index ? { ...ing, unit: newUnit } : ing))
         );
     };
 
     return (
         <div>
             <Navbar />
-            <h1>
-                Recipe #{id}. {title}
-            </h1>
-            <p>{description}</p>
-            <div className="edit-button">
-                <a href={`/recipes/${id}/edit`}>Edytuj przepis</a>
+            <div className="recipe-header">
+                <div className="tag-list">
+                    {tags.map((tag) => (
+                        <Tag key={tag} text={tag} />
+                    ))}
+                </div>
+                <div className="recipe-info">
+                    <h1>
+                        Przepis #{id}. {title}
+                    </h1>
+                    <p>{description}</p>
+                </div>
+                <div className="edit-button">
+                    <a href={`/recipes/${id}/edit`}>Edytuj przepis</a>
+                </div>
             </div>
             <TwoColumns
                 left={
@@ -55,11 +63,9 @@ const Recipe = () => {
                         ))}
                     </ul>
                 }
-                right={
-                    steps.map((step, idx) => (
-                        <Step key={idx} index={idx + 1} {...step} />
-                    ))
-                }
+                right={steps.map((step, idx) => (
+                    <Step key={idx} index={idx + 1} {...step} />
+                ))}
                 leftSize={30}
             />
         </div>

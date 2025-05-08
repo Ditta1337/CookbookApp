@@ -18,6 +18,15 @@ export const addAnimal = async (name, size) => {
 const recipeData = {
   title: "Nalesniki",
   description: "Przepyszne nalesniki z dzemem albo czymkolwiek innym co uwazasz za smaczne",
+  tags: [
+    "na słodko",
+    "wegetariańskie",
+    "kolejny tag",
+    "test",
+    "dużo tagów",
+    "kolorowo",
+    "naleśniczki",
+  ],
   steps: [
     {
       title: "Zmieszaj skladniki",
@@ -56,3 +65,96 @@ export const mockRecipeData = async (recipeId) => {
 
   return recipe;
 };
+
+const ingredientData = {
+  ingredients: ["mąka", "mleko", "jajka"],
+  units: ["g", "ml", "szklanka", "szt"],
+  conversionRates: {
+    mąka: [
+      {
+        from: "szklanka",
+        to: "g",
+        rate: 160,
+      },
+    ],
+    mleko: [
+      {
+        from: "ml",
+        to: "szklanka",
+        rate: 0.04,
+      },
+      { from: "szklanka", to: "g", rate: 240 },
+    ],
+  },
+};
+
+export const mockIngredientData = async () => {
+  // possibly multiple requests, for all units, for all ingredients, and for all conversion rates
+  const ingredient = await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(ingredientData);
+    }, 1000);
+  });
+
+  return ingredient;
+};
+
+export const sendNewIngredient = async () => {
+  const success = await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(true);
+    }, 1000);
+  });
+
+  return success;
+}
+
+export const deleteIngredient = async () => {
+  const success = await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(true);
+    }, 1000);
+  });
+
+  return success;
+}
+
+export const sendNewUnit = async () => {
+  const success = await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(true);
+    }, 1000);
+  });
+
+  return success;
+}
+
+export const deleteUnit = async () => {
+  const success = await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(true);
+    }, 1000);
+  });
+
+  return success;
+}
+
+export const sendNewConversion = async () => {
+  const success = await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(true);
+    }, 1000);
+  });
+
+  return success;
+}
+
+export const deleteConversion = async () => {
+  const success = await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(true);
+    }, 1000);
+  });
+
+  return success;
+}

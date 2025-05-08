@@ -1,0 +1,91 @@
+.creator-list {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+}
+
+.creator-list div:not(:last-child) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 2px solid gray;
+    padding: 8px;
+    margin: 2px;
+}
+
+.creator-list div:not(:last-child) h2 {
+    font-size: 18px;
+}
+
+.creator-list div:not(:last-child) button {
+    width: min-content;
+    color: red;
+}
+
+.creator-list input {
+    border: 2px solid gray;
+    padding: 8px;
+    font-size: 18px;
+    margin: 2px;
+    flex: 3;
+}
+
+.creator-list > button {
+    flex: 1;
+}
+
+.creator-list div:last-child {
+    display: flex;
+}
+
+.ingredient-list {
+    border-bottom: 2px solid gray;
+    padding-bottom: 24px;
+}
+
+.unit-list {
+    border-top: 2px solid gray;
+    padding-top: 24px;
+}
+
+.conversion-display {
+    font-size: 20px;
+    margin-bottom: 24px;
+}
+
+.conversion-display details {
+    border: 2px solid gray;
+    padding: 6px;
+    margin: 2px;
+}
+
+.conversion-display details button {
+    color: red;
+    margin: 2px 8px 2px 2px;
+}
+
+.conversion-creator {
+    font-size: 18px;
+    width: fit-content;
+}
+
+.conversion-creator select {
+    border: 1px solid gray;
+    padding: 2px;
+    float: right;
+    margin-left: 24px;
+}
+
+.conversion-creator > div {
+    margin: 8px 0;
+    width: 100%;
+}
+
+.conversion-creator > div > input {
+    width: 100px;
+    float: right;
+}
+
+.conversion-panel p > input {
+    width: 60px;
+}

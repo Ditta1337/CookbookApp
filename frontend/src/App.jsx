@@ -20,7 +20,15 @@ function App() {
   return (
     <>
       <LandingPage />
-      <div className="card">
+
+    </>
+  );
+}
+
+export default App;
+
+
+/*      <div className="card">
         <button onClick={handleDisplayAnimals}>Get animals list</button>
         <br />
         <input
@@ -38,8 +46,4 @@ function App() {
         <br />
         <button onClick={handleAddAnimal}>Add new animal</button>
       </div>
-    </>
-  );
-}
-
-export default App;
+      */

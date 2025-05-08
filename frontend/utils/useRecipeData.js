@@ -3,8 +3,9 @@ import { mockRecipeData } from "./network";
 
 export const useRecipeData = (id) => {
   const [recipe, setRecipe] = useState({
-    title: "Loading",
-    description: "Loading",
+    title: "Ładowanie",
+    description: "Ładowanie",
+    tags: [],
     steps: [],
     ingredients: [],
   });
