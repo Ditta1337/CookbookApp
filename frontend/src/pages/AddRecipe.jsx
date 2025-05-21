@@ -36,10 +36,6 @@ const AddRecipe = () => {
     quantity: 0,
     unit: '',
   }]);
-  console.log(recipeData);
-  console.log(recipeSteps);
-  console.log(recipeTags);
-  console.log(recipeIngredients);
   const fetchRecipeId = async() => {
   };
 
@@ -104,8 +100,7 @@ const AddRecipe = () => {
       steps: recipeSteps,
       ingredients: recipeIngredients,
     };
-    // tutaj dodaj kod do wyslania przepisu do backendu
-    fetch('http://localhost:8080/recipes/post', {
+    fetch('http://localhost:8000/recipes', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
