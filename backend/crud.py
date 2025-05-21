@@ -275,6 +275,52 @@ def get_recipe_by_id(db: Session, id: int):
     return recipeData
 
 
+def get_all_recipes(db: Session):
+    recipes = db.query(Recipe).all()
+
+    recipe_data = []
+    for recipe in recipes:
+        tag_ids = (
+            db.query(RecipeToTag.tag_id)
+            .filter(RecipeToTag.recipe_id == recipe.id)
+            .subquery()
+        )
+        tags = db.query(Tag).filter(Tag.id.in_(tag_ids)).all()
+
+        step_ids = (
+            db.query(RecipeSteps.step_id)
+            .filter(RecipeSteps.recipe_id == recipe.id)
+            .subquery()
+        )
+        steps = db.query(Step).filter(Step.id.in_(step_ids)).all()
+
+        ingredients = (
+            db.query(RecipesToIngredients.quantity, Ingredient, Unit)
+            .join(Ingredient, Ingredient.id == RecipesToIngredients.ingredient_id)
+            .join(Unit, Unit.id == RecipesToIngredients.unit_id)
+            .filter(RecipesToIngredients.recipe_id == recipe.id)
+            .all()
+        )
+
+        recipe_data.append({
+            "id": recipe.id,
+            "title": recipe.name,
+            "img":recipe.img,
+            "description": recipe.description,
+            "tags": [tag.name for tag in tags],
+            "steps": [{"title": step.title, "description": step.description} for step in steps],
+            "ingredients": [{
+                "name": ingredient[1].name,
+                "quantity": ingredient[0],
+                "unit": ingredient[2].name,
+            } for ingredient in ingredients]
+        })
+        # print(recipe_data)
+
+    return recipe_data
+
+
+
 def get_recipes_by_name(db: Session, name: str, limit_: int):
     recipes = db.query(Recipe).filter(Recipe.name.ilike(f"%{name}%")).limit(limit_).all()
 

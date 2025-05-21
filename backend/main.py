@@ -50,6 +50,16 @@ def create_recipe_endpoint(recipe_data: schemas.RecipeCreate, db: Session = Depe
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
+@app.get("/recipes/all", response_model=List[schemas.RecipeFullOut])
+def get_recipes(db: Session = Depends(get_db)):
+    try:
+        recipes = crud.get_all_recipes(db)
+        if not recipes:
+            raise HTTPException(status_code=404, detail="No recipes found matching the query")
+        return recipes
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/recipes/{id}",response_model=schemas.RecipeFullOut)
 def get_recipe_by_id(id: int,db: Session = Depends(get_db)):
     try:
