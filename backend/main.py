@@ -38,9 +38,6 @@ def get_db():
         db.close()
 
 
-app = FastAPI()
-
-
 # Recipes
 @app.post("/recipes", response_model=schemas.RecipeFullOut)
 def create_recipe_endpoint(recipe_data: schemas.RecipeCreate, db: Session = Depends(get_db)):
