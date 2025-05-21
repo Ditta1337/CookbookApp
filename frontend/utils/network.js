@@ -1,21 +1,6 @@
-export const getAnimals = async () => {
-  // TODO: move server address to .env file
-  const response = await fetch("http://localhost:8000/api/animals/");
-  const animals = await response.json();
-  return animals;
-};
-
-export const addAnimal = async (name, size) => {
-  // TODO: move server address to .env file
-  const response = await fetch(`http://localhost:8000/api/animals/${name}?size=${size}`, {
-    method: "POST",
-  });
-  const status = await response.json();
-  return status;
-};
-
 // mock na potrzeby developmentu
 const recipeData = {
+  id: 0,
   title: "Nalesniki",
   description: "Przepyszne nalesniki z dzemem albo czymkolwiek innym co uwazasz za smaczne",
   tags: [
@@ -66,6 +51,60 @@ export const mockRecipeData = async (recipeId) => {
   return recipe;
 };
 
+export const getFilteredRecipes = async (searchTerm, tagList) => {
+  const recipes = await new Promise((resolve) => {
+    setTimeout(() => {
+      // simulate less recipes when more filters are applied
+      const responseLength = Math.max(0, 15 - searchTerm.length - 3 * tagList.length);
+      resolve([...Array(responseLength).keys()].map((id) => ({ ...recipeData, id })));
+    }, 1000);
+  });
+
+  return recipes;
+};
+
+export const getAllTags = async () => {
+  // this should work but some CORS error is thrown
+  // const response = await fetch("http://localhost:8000/tags/get_all");
+  // const tags = await response.json();
+  // return tags;
+
+  const tags = await new Promise((resolve) => {
+    setTimeout(
+      () =>
+        resolve([
+          {
+            name: "string",
+            id: 1,
+          },
+          {
+            name: "ogorek",
+            id: 2,
+          },
+          {
+            name: "kapusta",
+            id: 3,
+          },
+          {
+            name: "burak",
+            id: 4,
+          },
+          {
+            name: "string2",
+            id: 5,
+          },
+          {
+            name: "string3",
+            id: 6,
+          },
+        ]),
+      1000
+    );
+  });
+
+  return tags;
+};
+
 const ingredientData = {
   ingredients: ["mąka", "mleko", "jajka"],
   units: ["g", "ml", "szklanka", "szt"],
@@ -107,7 +146,7 @@ export const sendNewIngredient = async () => {
   });
 
   return success;
-}
+};
 
 export const deleteIngredient = async () => {
   const success = await new Promise((resolve) => {
@@ -117,7 +156,7 @@ export const deleteIngredient = async () => {
   });
 
   return success;
-}
+};
 
 export const sendNewUnit = async () => {
   const success = await new Promise((resolve) => {
@@ -127,7 +166,7 @@ export const sendNewUnit = async () => {
   });
 
   return success;
-}
+};
 
 export const deleteUnit = async () => {
   const success = await new Promise((resolve) => {
@@ -137,7 +176,7 @@ export const deleteUnit = async () => {
   });
 
   return success;
-}
+};
 
 export const sendNewConversion = async () => {
   const success = await new Promise((resolve) => {
@@ -147,7 +186,7 @@ export const sendNewConversion = async () => {
   });
 
   return success;
-}
+};
 
 export const deleteConversion = async () => {
   const success = await new Promise((resolve) => {
@@ -157,4 +196,4 @@ export const deleteConversion = async () => {
   });
 
   return success;
-}
+};

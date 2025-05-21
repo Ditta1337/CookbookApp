@@ -1,12 +1,13 @@
 import React from "react";
 import "../index.css";
-const Navbar = () => {
+const Navbar = ({ children }) => {
   return (
     <nav>
       <div className="navbar-whole">
         <a className="navbar-button" href="/">
           Cookbook App
         </a>
+        {children}
         <div className="navbar-buttons">
           <a className="navbar-button" href="/recipes/add">
             Dodaj przepis
