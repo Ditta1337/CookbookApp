@@ -19,7 +19,6 @@ const AddRecipe = () => {
     description: '',
     date: getDate(),
   });
-  //tagi pewnie będą w bazie danych, ale na razie nie ma żadnego selecta tylko input
   const [recipeTags, setRecipeTags] = React.useState([{
     id: 0,
     name: '',
@@ -36,8 +35,6 @@ const AddRecipe = () => {
     quantity: 0,
     unit: '',
   }]);
-  const fetchRecipeId = async() => {
-  };
 
   const handleInput = event => {
     const { name, value } = event.target;
@@ -137,7 +134,7 @@ const handleSubmit = async (event) => {
     }
 
     console.log('Przepis zapisany!');
-    resetForm(); // <- tylko jeśli success!
+    resetForm(); 
   } catch (error) {
     console.error('Błąd przy zapisie przepisu:', error.message);
     alert('Coś poszło nie tak przy zapisie. Sprawdź backend.');
@@ -152,7 +149,7 @@ const handleSubmit = async (event) => {
         <h1 className="text-3xl font-bold">Dodaj przepis</h1>
       </div>
         <form className="w-11/12 max-w-7xl mx-auto" onSubmit={handleSubmit}>
-          <fieldset className="flex flex-col md:flex-row gap-2 border py-6 px-4">
+          <fieldset className="flex flex-col md:flex-row gap-10 border py-6 px-4">
             <div className="flex-1 flex flex-col">
             <label className="text-2xl font-semibold">Nazwa przepisu:</label>
             <input className='border-2 border-gray-300 rounded-md py-2 px-1 my-4' 
@@ -260,7 +257,7 @@ const handleSubmit = async (event) => {
             onChange={handleInput} 
             rows={5}
             required />
-                          <label className="text-2xl font-semibold">Kroki:</label>
+                          <label className="text-2xl font-semibold">Kroki przygotowania:</label>
             {recipeSteps.map((step, i) => (
             <div
               key={step.id}

@@ -5,7 +5,7 @@ const Navbar = () => {
     <nav>
       <div className="navbar-whole">
         <a className="navbar-button" href="/">
-          Cookbook App
+          Książka kucharska
         </a>
         <div className="navbar-buttons">
           <a className="navbar-button" href="/recipes/add">
