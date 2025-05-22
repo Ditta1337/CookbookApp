@@ -80,6 +80,29 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+button.delete-button {
+  background-color: #dc2626; /* Tailwind's red-600 */
+  color: white;
+  border: none;
+  font-size: 1.2rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+}
+
+button.delete-button:hover {
+  background-color: #b91c1c; /* Tailwind's red-700 */
+}
+
+button.delete-button:focus,
+button.delete-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #f87171;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
