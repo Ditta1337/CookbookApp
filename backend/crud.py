@@ -232,22 +232,22 @@ def create_recipe(db: Session, recipe_data: schemas.RecipeCreate):
 
 
 def get_recipe_by_id(db: Session, id: int):
-    recipe=db.query(Recipe).filter(Recipe.id == id).first()
-    #tags
+    recipe = db.query(Recipe).filter(Recipe.id == id).first()
+
     tag_ids = (
         db.query(RecipeToTag.tag_id)
         .filter(RecipeToTag.recipe_id == id)
         .subquery()
     )
     tags = db.query(Tag).filter(Tag.id.in_(tag_ids)).all()
-    #steps
+
     step_ids = (
         db.query(RecipeSteps.step_id)
         .filter(RecipeSteps.recipe_id == id)
         .subquery()
     )
     steps = db.query(Step).filter(Step.id.in_(step_ids)).all()
-    #ingredients
+
     ingredients = (
         db.query(RecipesToIngredients.quantity, Ingredient, Unit)
         .join(Ingredient, Ingredient.id == RecipesToIngredients.ingredient_id)
@@ -256,23 +256,50 @@ def get_recipe_by_id(db: Session, id: int):
         .all()
     )
 
-    recipeData = {
-        "id":recipe.id,
-        "title":recipe.name,
-        "img":recipe.img,
-        "description":recipe.description,
-        "tags":[tag.name for tag in tags],
-        "steps" : [ {"title":step.title,
-                   "description":step.description
-                   } for step in steps],
-        "ingredients":[{
-                "name": ingredient[1].name,
-                "quantity": ingredient[0],
-                "unit": ingredient[2].name,
-        } for ingredient in ingredients]
+    recipe_data = {
+        "id": recipe.id,
+        "title": recipe.name,
+        "img": recipe.img,
+        "description": recipe.description,
+        "tags": [tag.name for tag in tags],
+        "steps": [{"title": step.title, "description": step.description} for step in steps],
+        "ingredients": []
     }
 
-    return recipeData
+    for ingredient in ingredients:
+        quantity, ingredient_obj, unit_obj = ingredient
+        ingredient_id = ingredient_obj.id
+        unit_id = unit_obj.id
+
+        unit_conversions = db.query(UnitConversion).filter(UnitConversion.from_unit_id == unit_id).all()
+        unit_conversion_list = [
+            (quantity * uc.multiplier, db.query(Unit).filter(Unit.id == uc.to_unit_id).first().name)
+            for uc in unit_conversions
+        ]
+
+        ingredient_unit_conversions = (
+            db.query(IngredientUnitConversion)
+            .filter(
+                IngredientUnitConversion.ingredient_id == ingredient_id,
+                IngredientUnitConversion.from_unit_id == unit_id
+            )
+            .all()
+        )
+        ingredient_unit_conversion_list = [
+            (quantity * iuc.multiplier, db.query(Unit).filter(Unit.id == iuc.to_unit_id).first().name)
+            for iuc in ingredient_unit_conversions
+        ]
+
+        conversions = unit_conversion_list + ingredient_unit_conversion_list
+
+        recipe_data["ingredients"].append({
+            "name": ingredient_obj.name,
+            "quantity": quantity,
+            "unit": unit_obj.name,
+            "conversions": conversions
+        })
+
+    return recipe_data
 
 
 def get_all_recipes(db: Session):
