@@ -71,6 +71,7 @@ class IngredientUnitConversionCreate(BaseModel):
     ingredient_id: int
     from_unit_id: int
     to_unit_id: int
+    multiplier: float
 
     class Config:
         orm_mode = True

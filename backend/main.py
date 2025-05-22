@@ -232,7 +232,8 @@ def create_new_ingredient_unit_conversion(ingredient_unit_conversion: schemas.In
     try:
         return crud.create_ingredient_unit_conversion(db=db, ingredient_id=ingredient_unit_conversion.ingredient_id,
                                                       from_unit_id=ingredient_unit_conversion.from_unit_id,
-                                                      to_unit_id=ingredient_unit_conversion.to_unit_id)
+                                                      to_unit_id=ingredient_unit_conversion.to_unit_id,
+                                                      multiplier=ingredient_unit_conversion.multiplier)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

@@ -126,10 +126,10 @@ def get_all_ingredient_unit_conversions(db: Session):
     return db.query(IngredientUnitConversion).all()
 
 
-def create_ingredient_unit_conversion(db: Session, ingredient_id: int, from_unit_id: int, to_unit_id: int):
+def create_ingredient_unit_conversion(db: Session, ingredient_id: int, from_unit_id: int, to_unit_id: int, multiplier: float):
     try:
         ingredient_unit_conversion = IngredientUnitConversion(ingredient_id=ingredient_id, from_unit_id=from_unit_id,
-                                                              to_unit_id=to_unit_id)
+                                                              to_unit_id=to_unit_id, multiplier=multiplier)
         db.add(ingredient_unit_conversion)
         db.commit()
         db.refresh(ingredient_unit_conversion)
