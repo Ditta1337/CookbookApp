@@ -1,11 +1,11 @@
 import os
-#TODO: usunac
+# TODO: usunac
 # os.remove("CookBook.db")
 
 import sys
 from http.client import HTTPException
 
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 import uvicorn
 from backend import models, crud, schemas
@@ -40,7 +40,7 @@ def get_db():
 
 # Recipes
 @app.post("/recipes", response_model=schemas.RecipeFullOut)
-def create_recipe_endpoint(recipe_data: schemas.RecipeCreate, db: Session = Depends(get_db)):
+def create_recipe(recipe_data: schemas.RecipeCreate, db: Session = Depends(get_db)):
     try:
         recipe = crud.create_recipe(db, recipe_data)
         return crud.get_recipe_by_id(db, recipe.id)
@@ -67,21 +67,21 @@ def get_recipe_by_id(id: int,db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.put("/recipes/{id}", response_model=schemas.RecipeFullOut)
-def update_recipe(id: int, recipe_data: schemas.RecipeUpdate, db: Session = Depends(get_db)):
+@app.put("/recipes/update/{id}", response_model=schemas.RecipeFullOut)
+def update_recipe(id: int, recipe_data: schemas.RecipeCreate, db: Session = Depends(get_db)):
     try:
         recipe = crud.get_recipe_by_id(db, id)
         if recipe is None:
             raise HTTPException(status_code=404, detail="Recipe not found")
-        updated_recipe = crud.update_recipe(db, id, recipe_data.name, recipe_data.date)
+        updated_recipe = crud.update_recipe(db, id, recipe_data)
         return updated_recipe
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/recipes/search/{name}/{limit}", response_model=List[schemas.RecipeFullOut])
-def search_recipes(name: str, limit: int = 10, db: Session = Depends(get_db)):
+@app.post("/recipes/search/{limit}", response_model=List[schemas.RecipeFullOut])
+def search_recipes(name: str=None,tags:list[str]=None, limit: int = 10, db: Session = Depends(get_db)):
     try:
-        recipes = crud.get_recipes_by_name(db, name, limit)
+        recipes = crud.get_recipes_by_names_and_tags(db, name, tags,limit)
         if not recipes:
             raise HTTPException(status_code=404, detail="No recipes found matching the query")
         return recipes

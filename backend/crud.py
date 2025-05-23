@@ -1,5 +1,4 @@
 from sqlite3 import IntegrityError
-from datetime import date
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List
@@ -348,8 +347,16 @@ def get_all_recipes(db: Session):
 
 
 
-def get_recipes_by_name(db: Session, name: str, limit_: int):
-    recipes = db.query(Recipe).filter(Recipe.name.ilike(f"%{name}%")).limit(limit_).all()
+def get_recipes_by_names_and_tags(db: Session, name: str = None, tags: list[str] = None, limit_: int = 10):
+    query = db.query(Recipe)
+
+    if name:
+        query = query.filter(Recipe.name.ilike(f"%{name}%"))
+
+    if tags:
+        query = query.join(RecipeToTag).join(Tag).filter(Tag.name.in_(tags))
+
+    recipes = query.limit(limit_).all()
 
     recipe_data = []
     for recipe in recipes:
@@ -378,7 +385,7 @@ def get_recipes_by_name(db: Session, name: str, limit_: int):
         recipe_data.append({
             "id": recipe.id,
             "title": recipe.name,
-            "img":recipe.img,
+            "img": recipe.img,
             "description": recipe.description,
             "tags": [tag.name for tag in tags],
             "steps": [{"title": step.title, "description": step.description} for step in steps],
@@ -391,50 +398,60 @@ def get_recipes_by_name(db: Session, name: str, limit_: int):
 
     return recipe_data
 
-
-def update_recipe(db: Session, id: int, name: str, date: date):
+def update_recipe(db: Session, id: int, recipe_data: schemas.RecipeCreate):
     recipe = db.query(Recipe).filter(Recipe.id == id).first()
     if recipe:
-        recipe.name = name
-        recipe.date = date
-        db.commit()
-        db.refresh(recipe)
-        return recipe
+        delete_recipe(db,id)
+        recipe=create_recipe(db,recipe_data)
+        return get_recipe_by_id(db,recipe.id)
     else:
         raise ValueError(f"Recipe with ID {id} not found.")
 
 
-def delete_recipe(db: Session, id: int):
-    recipe = db.query(Recipe).filter(Recipe.id == id).first()
-    if recipe:
-        db.delete(recipe)
-        db.commit()
-        return {"message": f"Recipe with ID {id} deleted successfully."}
-    else:
-        raise ValueError(f"Recipe with ID {id} not found.")
+def delete_recipe(db: Session, recipe_id: int):
+    recipe = db.query(Recipe).filter(Recipe.id == recipe_id).first()
+    if not recipe:
+        raise ValueError(f"Recipe with ID {recipe_id} not found.")
 
+    tag_ids = [rt.tag_id for rt in db.query(RecipeToTag).filter(RecipeToTag.recipe_id == recipe_id).all()]
+    ingredient_ids = [ri.ingredient_id for ri in db.query(RecipesToIngredients).filter(RecipesToIngredients.recipe_id == recipe_id).all()]
+    unit_ids = [ri.unit_id for ri in db.query(RecipesToIngredients).filter(RecipesToIngredients.recipe_id == recipe_id).all()]
+    step_ids = [rs.step_id for rs in db.query(RecipeSteps).filter(RecipeSteps.recipe_id == recipe_id).all()]
+
+    db.query(RecipeToTag).filter(RecipeToTag.recipe_id == recipe_id).delete()
+    db.query(RecipesToIngredients).filter(RecipesToIngredients.recipe_id == recipe_id).delete()
+    db.query(RecipeSteps).filter(RecipeSteps.recipe_id == recipe_id).delete()
+
+    db.delete(recipe)
+    db.commit()
+
+    #usuwanie danych w pozostalych tabelach ktore nie sa uzywane
+    for tag_id in tag_ids:
+        exists = db.query(RecipeToTag).filter(RecipeToTag.tag_id == tag_id).first()
+        if not exists:
+            db.query(Tag).filter(Tag.id == tag_id).delete()
+
+    for ingredient_id in ingredient_ids:
+        exists = db.query(RecipesToIngredients).filter(RecipesToIngredients.ingredient_id == ingredient_id).first()
+        if not exists:
+            db.query(Ingredient).filter(Ingredient.id == ingredient_id).delete()
+
+    for unit_id in unit_ids:
+        exists = db.query(RecipesToIngredients).filter(RecipesToIngredients.unit_id == unit_id).first()
+        if not exists:
+            db.query(Unit).filter(Unit.id == unit_id).delete()
+
+    for step_id in step_ids:
+        exists = db.query(RecipeSteps).filter(RecipeSteps.step_id == step_id).first()
+        if not exists:
+            db.query(Step).filter(Step.id == step_id).delete()
+
+    db.commit()
+
+    return {"message": "Recipe and unused related data deleted successfully"}
 
 def get_tag_by_name(db: Session, name: str):
     return db.query(Tag).filter(Tag.name == name).first()
-
-def get_recipes_by_tags(db: Session, tag_names: List[str]):
-    tags = db.query(Tag).filter(Tag.name.in_(tag_names)).all()
-
-    if len(tags) != len(tag_names):
-        raise ValueError("One or more tags not found")
-
-    tag_ids = [tag.id for tag in tags]
-
-    recipes = (
-        db.query(Recipe.id)
-        .join(RecipeToTag, RecipeToTag.recipe_id == Recipe.id)
-        .filter(RecipeToTag.tag_id.in_(tag_ids))
-        .group_by(Recipe.id)
-        .having(func.count(RecipeToTag.tag_id) == len(tag_ids))
-        .all()
-    )
-
-    return [recipe.id for recipe in recipes]
 
 def create_tag(db: Session, name: str):
     tag = Tag(name=name)
