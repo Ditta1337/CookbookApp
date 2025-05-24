@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useDebounce } from "@uidotdev/usehooks";
 import Navbar from "../components/Navbar";
 import { getAllTags, getFilteredRecipes } from "../../utils/network";
-import { WithContext as ReactTags } from "react-tag-input";
+import { TagSelector } from "../components/TagSelector";
 
 const ViewRecipes = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -52,23 +52,12 @@ const ViewRecipes = () => {
   return (
     <div>
       <Navbar>
-        <ReactTags
-          tags={selectedTags}
-          suggestions={availableTags}
-          handleAddition={(tag) => setSelectedTags((old) => [...old, tag])}
-          handleDelete={(index) => setSelectedTags((old) => old.filter((_, idx) => idx != index))}
-          placeholder="Filtruj tagi..."
-          separators={["Enter", "Tab"]}
-          labelField="name"
-          inputFieldPosition="bottom"
-          allowDragDrop={false}
-          classNames={{
-            tagInputField: "py-2 px-2 my-4 mx-2 font-semibold border-gray-300 border-2 rounded-md",
-            tag: "py-2 px-2 my-4 mx-2 font-semibold border-gray-300 border-2 rounded-md",
-            remove: "p-[8px]! ml-2 bg-red-800!",
-            suggestions: "py-2 px-2 font-semibold border-gray-300 border-1 rounded-md",
-            activeSuggestion: "py-2 px-2 font-semibold border-blue-300 border-1 rounded-md",
-          }}
+        <TagSelector
+          selectedTags={selectedTags}
+          availableTags={availableTags}
+          onAdd={(tag) => setSelectedTags((old) => [...old, tag])}
+          onDelete={(index) => setSelectedTags((old) => old.filter((_, idx) => idx != index))}
+          noCreateNew
         />
         <input
           className="py-2 px-2 my-4 mx-2 font-semibold border-gray-300 border-2 rounded-md"
