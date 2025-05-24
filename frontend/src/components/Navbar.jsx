@@ -5,7 +5,7 @@ const Navbar = ({ children }) => {
     <nav>
       <div className="navbar-whole">
         <a className="navbar-button" href="/">
-          Cookbook App
+          Książka kucharska
         </a>
         {children}
         <div className="navbar-buttons">

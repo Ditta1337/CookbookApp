@@ -8,7 +8,7 @@ class RecipeCreate(BaseModel):
     title: str
     description: str
     date: date
-    img:str
+    img: str
     tags: List[str]
     steps: List["StepCreate"]
     ingredients: List["RecipeIngredientCreate"]
@@ -62,6 +62,7 @@ class IngredientUnitConversionCreate(BaseModel):
     ingredient_id: int
     from_unit_id: int
     to_unit_id: int
+    multiplier: float
 
     class Config:
         orm_mode = True

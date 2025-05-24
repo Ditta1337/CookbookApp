@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useDebounce } from "@uidotdev/usehooks";
 import Navbar from "../components/Navbar";
 import { getAllTags, getFilteredRecipes } from "../../utils/network";
@@ -7,6 +8,7 @@ import { WithContext as ReactTags } from "react-tag-input";
 const ViewRecipes = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [recipes, setRecipes] = useState([]);
+  const [isError, setIsError] = useState(false);
   const [availableTags, setAvailableTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
 
@@ -15,21 +17,37 @@ const ViewRecipes = () => {
 
   useEffect(() => {
     async function fetchRecipes() {
-      const tags = await getAllTags();
-      setAvailableTags(tags.map(({ id, name }) => ({ id: id.toString(), name })));
-    }
-
-    fetchRecipes();
-  }, []);
-
-  useEffect(() => {
-    async function fetchRecipes() {
-      const filteredRecipes = await getFilteredRecipes(debouncedSearchTerm, debouncedSelectedTags);
+      const [filteredRecipes, error] = await getFilteredRecipes(
+        debouncedSearchTerm,
+        debouncedSelectedTags
+      );
+      if (error) {
+        setIsError(true);
+        return;
+      }
       setRecipes(filteredRecipes);
+      console.log(filteredRecipes);
     }
 
     fetchRecipes();
   }, [debouncedSearchTerm, debouncedSelectedTags]);
+
+  useEffect(() => {
+    async function fetchTags() {
+      const tags = await getAllTags();
+      setAvailableTags(tags.map(({ id, name }) => ({ id: id.toString(), name })));
+    }
+
+    fetchTags();
+  }, []);
+
+  if (isError) {
+    return (
+      <div className="flex justify-center items-center h-[70vh]">
+        <img src={unplugged} alt="Błąd" className="w-24 h-24" />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -49,7 +67,7 @@ const ViewRecipes = () => {
             tag: "py-2 px-2 my-4 mx-2 font-semibold border-gray-300 border-2 rounded-md",
             remove: "p-[8px]! ml-2 bg-red-800!",
             suggestions: "py-2 px-2 font-semibold border-gray-300 border-1 rounded-md",
-            activeSuggestion: "py-2 px-2 font-semibold border-blue-300 border-1 rounded-md"
+            activeSuggestion: "py-2 px-2 font-semibold border-blue-300 border-1 rounded-md",
           }}
         />
         <input
@@ -59,12 +77,38 @@ const ViewRecipes = () => {
           placeholder="Szukaj przepisu..."
         />
       </Navbar>
-      <div style={{ display: "flex", flexDirection: "column" }}>
-        {recipes.map(({ title, id }) => (
-          <a key={id} href={`/recipes/${id}`}>
-            {title} {id}
-          </a>
-        ))}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 p-6 mt-6">
+        {recipes.length === 0 ? (
+          <div className="col-span-full text-center text-xl font-medium">
+            Brak dostępnych przepisów
+          </div>
+        ) : (
+          recipes.map((recipe, index) => (
+            <Link key={index} to={`/recipes/${recipe.id}`}>
+              <div className="bg-gray-300 rounded-xl shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-shadow">
+                <img
+                  src={recipe.img}
+                  alt={recipe.title}
+                  className="w-full h-40 object-cover p-2 rounded-xl"
+                />
+                <div className="flex flex-col px-4 pb-4 h-full">
+                  <h3 className="text-lg font-bold mt-2">{recipe.title}</h3>
+                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">{recipe.description}</p>
+                  <div className="flex flex-wrap mt-2 gap-1">
+                    {recipe.tags.map((tag, idx) => (
+                      <span
+                        key={idx}
+                        className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))
+        )}
       </div>
     </div>
   );

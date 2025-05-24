@@ -52,56 +52,22 @@ export const mockRecipeData = async (recipeId) => {
 };
 
 export const getFilteredRecipes = async (searchTerm, tagList) => {
-  const recipes = await new Promise((resolve) => {
-    setTimeout(() => {
-      // simulate less recipes when more filters are applied
-      const responseLength = Math.max(0, 15 - searchTerm.length - 3 * tagList.length);
-      resolve([...Array(responseLength).keys()].map((id) => ({ ...recipeData, id })));
-    }, 1000);
-  });
-
-  return recipes;
+  console.warn(
+    `Searching recipe '${searchTerm}' with tags ${tagList}, but endpoint /recipes/all is called. Need to implement that.`
+  );
+  try {
+    const response = await fetch("http://localhost:8000/recipes/all");
+    const data = await response.json();
+    return [data, false];
+  } catch (error) {
+    console.error("Błąd podczas pobierania przepisów:", error);
+    return [[], true];
+  }
 };
 
 export const getAllTags = async () => {
-  // this should work but some CORS error is thrown
-  // const response = await fetch("http://localhost:8000/tags/get_all");
-  // const tags = await response.json();
-  // return tags;
-
-  const tags = await new Promise((resolve) => {
-    setTimeout(
-      () =>
-        resolve([
-          {
-            name: "string",
-            id: 1,
-          },
-          {
-            name: "ogorek",
-            id: 2,
-          },
-          {
-            name: "kapusta",
-            id: 3,
-          },
-          {
-            name: "burak",
-            id: 4,
-          },
-          {
-            name: "string2",
-            id: 5,
-          },
-          {
-            name: "string3",
-            id: 6,
-          },
-        ]),
-      1000
-    );
-  });
-
+  const response = await fetch("http://localhost:8000/tags/get_all");
+  const tags = await response.json();
   return tags;
 };
 

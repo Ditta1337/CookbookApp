@@ -91,6 +91,7 @@ class IngredientUnitConversion(Base):
     ingredient_id=Column(Integer, ForeignKey("INGREDIENTS.id"), primary_key=True)
     from_unit_id=Column(Integer, ForeignKey("UNITS.id"), primary_key=True)
     to_unit_id=Column(Integer, ForeignKey("UNITS.id"), primary_key=True)
+    multiplier = Column(Float, nullable=False)
 
     ingredient = relationship("Ingredient", backref="unit_conversions")
     from_unit = relationship("Unit", foreign_keys=[from_unit_id], backref="conversions_from")
