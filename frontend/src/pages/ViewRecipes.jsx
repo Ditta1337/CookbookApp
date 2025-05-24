@@ -1,30 +1,45 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useDebounce } from "@uidotdev/usehooks";
 import Navbar from "../components/Navbar";
+import { getAllTags, getFilteredRecipes } from "../../utils/network";
+import { WithContext as ReactTags } from "react-tag-input";
 
 const ViewRecipes = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [recipeData, setRecipeData] = useState([]);
+  const [recipes, setRecipes] = useState([]);
   const [isError, setIsError] = useState(false);
+  const [availableTags, setAvailableTags] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
 
-  const fetchRecipeData = async () => {
-    try {
-      const response = await fetch("http://localhost:8000/recipes/all");
-      const data = await response.json();
-      setRecipeData(data);
-    } catch (error) {
-      console.error("Błąd podczas pobierania przepisów:", error);
-      setIsError(true);
-    }
-  };
+  const debouncedSearchTerm = useDebounce(searchTerm, 1000);
+  const debouncedSelectedTags = useDebounce(selectedTags, 1000);
 
   useEffect(() => {
-    fetchRecipeData();
-  }, []);
+    async function fetchRecipes() {
+      const [filteredRecipes, error] = await getFilteredRecipes(
+        debouncedSearchTerm,
+        debouncedSelectedTags
+      );
+      if (error) {
+        setIsError(true);
+        return;
+      }
+      setRecipes(filteredRecipes);
+      console.log(filteredRecipes);
+    }
 
-  const filteredRecipes = recipeData.filter((recipe) =>
-    recipe.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    fetchRecipes();
+  }, [debouncedSearchTerm, debouncedSelectedTags]);
+
+  useEffect(() => {
+    async function fetchTags() {
+      const tags = await getAllTags();
+      setAvailableTags(tags.map(({ id, name }) => ({ id: id.toString(), name })));
+    }
+
+    fetchTags();
+  }, []);
 
   if (isError) {
     return (
@@ -36,24 +51,39 @@ const ViewRecipes = () => {
 
   return (
     <div>
-      <Navbar />
-      <div className="flex justify-center mt-4">
+      <Navbar>
+        <ReactTags
+          tags={selectedTags}
+          suggestions={availableTags}
+          handleAddition={(tag) => setSelectedTags((old) => [...old, tag])}
+          handleDelete={(index) => setSelectedTags((old) => old.filter((_, idx) => idx != index))}
+          placeholder="Filtruj tagi..."
+          separators={["Enter", "Tab"]}
+          labelField="name"
+          inputFieldPosition="bottom"
+          allowDragDrop={false}
+          classNames={{
+            tagInputField: "py-2 px-2 my-4 mx-2 font-semibold border-gray-300 border-2 rounded-md",
+            tag: "py-2 px-2 my-4 mx-2 font-semibold border-gray-300 border-2 rounded-md",
+            remove: "p-[8px]! ml-2 bg-red-800!",
+            suggestions: "py-2 px-2 font-semibold border-gray-300 border-1 rounded-md",
+            activeSuggestion: "py-2 px-2 font-semibold border-blue-300 border-1 rounded-md",
+          }}
+        />
         <input
-          type="text"
-          placeholder="Szukaj przepisu..."
-          className="py-2 px-4 border border-gray-300 rounded-md w-full max-w-md"
+          className="py-2 px-2 my-4 mx-2 font-semibold border-gray-300 border-2 rounded-md"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Szukaj przepisu..."
         />
-      </div>
-
+      </Navbar>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 p-6 mt-6">
-        {filteredRecipes.length === 0 ? (
+        {recipes.length === 0 ? (
           <div className="col-span-full text-center text-xl font-medium">
             Brak dostępnych przepisów
           </div>
         ) : (
-          filteredRecipes.map((recipe, index) => (
+          recipes.map((recipe, index) => (
             <Link key={index} to={`/recipes/${recipe.id}`}>
               <div className="bg-gray-300 rounded-xl shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-shadow">
                 <img
@@ -63,9 +93,7 @@ const ViewRecipes = () => {
                 />
                 <div className="flex flex-col px-4 pb-4 h-full">
                   <h3 className="text-lg font-bold mt-2">{recipe.title}</h3>
-                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                    {recipe.description}
-                  </p>
+                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">{recipe.description}</p>
                   <div className="flex flex-wrap mt-2 gap-1">
                     {recipe.tags.map((tag, idx) => (
                       <span

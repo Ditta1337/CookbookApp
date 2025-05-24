@@ -1,21 +1,6 @@
-export const getAnimals = async () => {
-  // TODO: move server address to .env file
-  const response = await fetch("http://localhost:8000/api/animals/");
-  const animals = await response.json();
-  return animals;
-};
-
-export const addAnimal = async (name, size) => {
-  // TODO: move server address to .env file
-  const response = await fetch(`http://localhost:8000/api/animals/${name}?size=${size}`, {
-    method: "POST",
-  });
-  const status = await response.json();
-  return status;
-};
-
 // mock na potrzeby developmentu
 const recipeData = {
+  id: 0,
   title: "Nalesniki",
   description: "Przepyszne nalesniki z dzemem albo czymkolwiek innym co uwazasz za smaczne",
   tags: [
@@ -66,6 +51,26 @@ export const mockRecipeData = async (recipeId) => {
   return recipe;
 };
 
+export const getFilteredRecipes = async (searchTerm, tagList) => {
+  console.warn(
+    `Searching recipe '${searchTerm}' with tags ${tagList}, but endpoint /recipes/all is called. Need to implement that.`
+  );
+  try {
+    const response = await fetch("http://localhost:8000/recipes/all");
+    const data = await response.json();
+    return [data, false];
+  } catch (error) {
+    console.error("Błąd podczas pobierania przepisów:", error);
+    return [[], true];
+  }
+};
+
+export const getAllTags = async () => {
+  const response = await fetch("http://localhost:8000/tags/get_all");
+  const tags = await response.json();
+  return tags;
+};
+
 const ingredientData = {
   ingredients: ["mąka", "mleko", "jajka"],
   units: ["g", "ml", "szklanka", "szt"],
@@ -107,7 +112,7 @@ export const sendNewIngredient = async () => {
   });
 
   return success;
-}
+};
 
 export const deleteIngredient = async () => {
   const success = await new Promise((resolve) => {
@@ -117,7 +122,7 @@ export const deleteIngredient = async () => {
   });
 
   return success;
-}
+};
 
 export const sendNewUnit = async () => {
   const success = await new Promise((resolve) => {
@@ -127,7 +132,7 @@ export const sendNewUnit = async () => {
   });
 
   return success;
-}
+};
 
 export const deleteUnit = async () => {
   const success = await new Promise((resolve) => {
@@ -137,7 +142,7 @@ export const deleteUnit = async () => {
   });
 
   return success;
-}
+};
 
 export const sendNewConversion = async () => {
   const success = await new Promise((resolve) => {
@@ -147,7 +152,7 @@ export const sendNewConversion = async () => {
   });
 
   return success;
-}
+};
 
 export const deleteConversion = async () => {
   const success = await new Promise((resolve) => {
@@ -157,4 +162,4 @@ export const deleteConversion = async () => {
   });
 
   return success;
-}
+};
