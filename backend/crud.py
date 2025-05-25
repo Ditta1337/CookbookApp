@@ -230,6 +230,10 @@ def create_recipe(db: Session, recipe_data: schemas.RecipeCreate):
     return recipe
 
 
+def create_recipe_from_website(db: Session, website_url: str):
+    raise NotImplementedError("This function is not implemented yet.")
+
+
 def get_recipe_by_id(db: Session, id: int):
     recipe = db.query(Recipe).filter(Recipe.id == id).first()
 
