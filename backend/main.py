@@ -1,7 +1,4 @@
 import os
-# TODO: usunac
-# os.remove("CookBook.db")
-
 import sys
 from http.client import HTTPException
 
@@ -52,7 +49,7 @@ def get_recipes(db: Session = Depends(get_db)):
     try:
         recipes = crud.get_all_recipes(db)
         if not recipes:
-            raise HTTPException(status_code=404, detail="No recipes found matching the query")
+            return []
         return recipes
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

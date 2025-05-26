@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import { TagSelector } from "../components/TagSelector";
-import { getAllTags } from "../../utils/network";
+import { getAllTags, sendNewIngredient, sendNewTag } from "../../utils/network";
 
 const AddRecipe = () => {
   const recipeId = 0;
@@ -34,11 +34,11 @@ const AddRecipe = () => {
 
   useEffect(() => {
     async function fetchTagsAndIngredients() {
-      const tagsAndIngredients = await getAllTags();
+      const tags = await getAllTags();
       // TODO: IMPORTANT!
       // change the below to render only ingredients and only tags specifically
-      setAvailableIngredients(tagsAndIngredients);
-      setAvailableTags(tagsAndIngredients);
+      setAvailableIngredients(tags);
+      setAvailableTags(tags);
     }
 
     fetchTagsAndIngredients();
@@ -67,25 +67,24 @@ const AddRecipe = () => {
     setRecipeSteps([...recipeSteps, { id: stepId, title: "", description: "" }]);
     setStepId(stepId + 1);
   };
-  const handleAddTag = (newId, name) => {
+  const handleAddTag = async (newId, name) => {
     let id = Number(newId);
     if (isNaN(id)) {
-      // TODO: this is a new tag, need to create it in backend beforehand
-      id = 100;
+      const newTag = await sendNewTag(name);
+      setAvailableTags((allTags) => [...allTags, newTag]);
+      id = newTag.id;
     }
     setRecipeTags([...recipeTags, { id, name }]);
   };
 
-  const handleAddIngredient = (newId, name) => {
+  const handleAddIngredient = async (newId, name) => {
     let id = Number(newId);
     if (isNaN(id)) {
-      // TODO: this is a new ingredient, need to create it in backend beforehand
-      id = 100;
+      const newIngredient = await sendNewIngredient(name);
+      setAvailableIngredients((allIngredients) => [...allIngredients, newIngredient]);
+      id = newIngredient.id;
     }
-    setRecipeIngredients([
-      ...recipeIngredients,
-      { id, name, quantity: 0, unit: "" },
-    ]);
+    setRecipeIngredients([...recipeIngredients, { id, name, quantity: 0, unit: "" }]);
   };
   const handleDeleteSteps = (i) => {
     const deleteSteps = [...recipeSteps];
