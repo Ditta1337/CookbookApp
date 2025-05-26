@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { mockRecipeData } from "./network";
+import { getRecipeData } from "./network";
 
 export const useRecipeData = (id) => {
   const [recipe, setRecipe] = useState({
@@ -12,7 +12,7 @@ export const useRecipeData = (id) => {
 
   useEffect(() => {
     async function fetchRecipe() {
-      const recipeData = await mockRecipeData(id);
+      const recipeData = await getRecipeData(id);
       setRecipe(recipeData);
     }
 

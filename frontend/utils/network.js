@@ -1,54 +1,15 @@
-// mock na potrzeby developmentu
-const recipeData = {
-  id: 0,
-  title: "Nalesniki",
-  description: "Przepyszne nalesniki z dzemem albo czymkolwiek innym co uwazasz za smaczne",
-  tags: [
-    "na słodko",
-    "wegetariańskie",
-    "kolejny tag",
-    "test",
-    "dużo tagów",
-    "kolorowo",
-    "naleśniczki",
-  ],
-  steps: [
-    {
-      title: "Zmieszaj skladniki",
-      description:
-        "Do jednej miski wsyp make, wbij jajka, wlej mleko, dodaj cukru do smaku i szczypte soli. Nastepnie wymieszaj skladniki przy pomocy miksera albo recznie",
-    },
-    { title: "Usmaz ciasto", description: "Dokladniejszy opis tego co ma byc zrobione" },
-    { title: "Wyloz na talerz", description: "Dokladniejszy opis tego co ma byc zrobione" },
-    { title: "Posmaruj dzemem i zawin", description: "Dokladniejszy opis tego co ma byc zrobione" },
-  ],
-  ingredients: [
-    {
-      name: "Maka",
-      quantity: 200,
-      unit: "g",
-    },
-    {
-      name: "Mleko",
-      quantity: 300,
-      unit: "ml",
-    },
-    {
-      name: "Jajko",
-      quantity: 2,
-      unit: "szt",
-    },
-  ],
+const sendPostRequest = (endpoint, body) => {
+  endpoint = endpoint[0] !== "/" ? endpoint : endpoint.substr(1);
+  return fetch(`http://localhost:8000/${endpoint}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
 };
 
-export const mockRecipeData = async (recipeId) => {
-  const recipe = await new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ id: recipeId, ...recipeData });
-    }, 1000);
-  });
-
-  return recipe;
+export const getRecipeData = async (recipeId) => {
+  const res = await fetch(`http://localhost:8000/recipes/${recipeId}`);
+  return await res.json();
 };
 
 export const getFilteredRecipes = async (searchTerm, tagList) => {
@@ -104,14 +65,20 @@ export const mockIngredientData = async () => {
   return ingredient;
 };
 
-export const sendNewIngredient = async () => {
-  const success = await new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-    }, 1000);
-  });
+export const getAllIngredients = async () => {
+  return await Promise.resolve([
+    { name: "mąka", id: 1 },
+    { name: "mleko", id: 2 },
+    { name: "jajko", id: 3 },
+    { name: "woda", id: 4 },
+    { name: "cukier", id: 5 },
+  ]);
+};
 
-  return success;
+export const sendNewIngredient = async (name) => {
+  const response = await sendPostRequest("/ingredients/", { name });
+  const newIngredient = await response.json();
+  return { ...newIngredient, id: Math.floor(Math.random() * 10000) };
 };
 
 export const deleteIngredient = async () => {
@@ -162,4 +129,9 @@ export const deleteConversion = async () => {
   });
 
   return success;
+};
+
+export const sendNewTag = async (name) => {
+  const response = await sendPostRequest("/tags/post", { name });
+  return await response.json();
 };
