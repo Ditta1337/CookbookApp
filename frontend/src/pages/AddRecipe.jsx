@@ -153,161 +153,159 @@ const AddRecipe = () => {
   return (
     <div>
       <Navbar />
-      <div>
-        <div className="flex justify-center items-center py-3 my-4">
-          <h1 className="text-3xl font-bold">Dodaj przepis</h1>
-        </div>
-        <form className="w-11/12 max-w-7xl mx-auto" onSubmit={handleSubmit}>
-          <fieldset className="flex flex-col md:flex-row gap-10 border py-6 px-4">
-            <div className="flex-1 flex flex-col">
-              <label className="text-2xl font-semibold">Nazwa przepisu:</label>
-              <input
-                className="border-2 border-gray-300 rounded-md py-2 px-1 my-4"
-                id="name"
-                name="name"
-                type="text"
-                value={recipeData.name}
-                placeholder="Nazwa przepisu"
-                onChange={handleInput}
-                required
-              />
-              <label className="text-2xl font-semibold mt-4">Składniki:</label>
-              <TagSelector
-                selectedTags={recipeIngredients.map(({ id, name }) => ({
-                  id: id.toString(),
-                  name,
-                }))}
-                availableTags={availableIngredients.map(({ id, name }) => ({
-                  id: id.toString(),
-                  name,
-                }))}
-                onAdd={({ id, name }) => handleAddIngredient(id, name)}
-                onDelete={(i) => handleDeleteIngredient(i)}
-              />
-              {recipeIngredients.map((ingredient, i) => (
-                <div
-                  key={ingredient.id}
-                  className="flex flex-wrap md:flex-nowrap items-center gap-2 border border-gray-300 rounded-md p-2 my-2"
-                >
-                  <input
-                    className="flex-1 border border-gray-300 rounded-md py-2 px-2"
-                    name="name"
-                    type="text"
-                    value={ingredient.name}
-                    placeholder="Nazwa składnika"
-                    disabled
-                    required
-                  />
-                  <input
-                    className="w-24 border border-gray-300 rounded-md py-2 px-2"
-                    name="quantity"
-                    type="text"
-                    value={ingredient.quantity}
-                    placeholder="Ilość"
-                    onChange={(e) => handleIngredientChange(e, i)}
-                    required
-                  />
-                  <input
-                    className="w-28 border border-gray-300 rounded-md py-2 px-2"
-                    name="unit"
-                    type="text"
-                    value={ingredient.unit}
-                    placeholder="Jednostka"
-                    onChange={(e) => handleIngredientChange(e, i)}
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteIngredient(i)}
-                    className="delete-button bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                    title="Usuń składnik"
-                  >
-                    &minus;
-                  </button>
-                </div>
-              ))}
-              <label className="text-2xl font-semibold">Tagi:</label>
-              <TagSelector
-                selectedTags={recipeTags.map(({ id, name }) => ({
-                  id: id.toString(),
-                  name,
-                }))}
-                availableTags={availableTags.map(({ id, name }) => ({
-                  id: id.toString(),
-                  name,
-                }))}
-                onAdd={({ id, name }) => handleAddTag(id, name)}
-                onDelete={(i) => handleDeleteTag(i)}
-              />
-            </div>
-            <div className="flex-1 flex flex-col">
-              <label className="text-2xl font-semibold">Opis przepisu:</label>
-              <textarea
-                className="border-2 border-gray-300 rounded-md py-2 px-1 my-4"
-                id="description"
-                name="description"
-                type="text"
-                value={recipeData.description}
-                placeholder="Opis przepisu"
-                onChange={handleInput}
-                rows={5}
-                required
-              />
-              <label className="text-2xl font-semibold">Kroki przygotowania:</label>
-              {recipeSteps.map((step, i) => (
-                <div
-                  key={step.id}
-                  className="flex flex-row gap-2 border border-gray-300 rounded-md p-2 my-2 items-start"
-                >
-                  <div className="flex-1 flex flex-col gap-2">
-                    <input
-                      className="border border-gray-300 rounded-md py-2 px-2"
-                      id="title"
-                      name="title"
-                      type="text"
-                      value={step.title}
-                      placeholder="Tytuł kroku"
-                      onChange={(event) => handleStepChange(event, i)}
-                      required
-                    />
-                    <textarea
-                      className="border border-gray-300 rounded-md py-2 px-2"
-                      id="description"
-                      name="description"
-                      type="text"
-                      value={step.description}
-                      rows={5}
-                      placeholder="Opis kroku"
-                      onChange={(event) => handleStepChange(event, i)}
-                      required
-                    />
-                  </div>
-                  <button
-                    className="delete-button bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded h-fit"
-                    type="button"
-                    onClick={() => handleDeleteSteps(i)}
-                    title="Usuń krok"
-                  >
-                    &minus;
-                  </button>
-                </div>
-              ))}
-              <div>
+      <div className="flex justify-center items-center py-3 my-4">
+        <h1 className="text-3xl font-bold">Dodaj przepis</h1>
+      </div>
+      <form className="w-11/12 max-w-7xl mx-auto" onSubmit={handleSubmit}>
+        <fieldset className="flex flex-col md:flex-row gap-10 border py-6 px-4">
+          <div className="flex-1 flex flex-col">
+            <label className="text-2xl font-semibold">Nazwa przepisu:</label>
+            <input
+              className="border-2 border-gray-300 rounded-md py-2 px-1 my-4"
+              id="name"
+              name="name"
+              type="text"
+              value={recipeData.name}
+              placeholder="Nazwa przepisu"
+              onChange={handleInput}
+              required
+            />
+            <label className="text-2xl font-semibold mt-4">Składniki:</label>
+            <TagSelector
+              selectedTags={recipeIngredients.map(({ id, name }) => ({
+                id: id.toString(),
+                name,
+              }))}
+              availableTags={availableIngredients.map(({ id, name }) => ({
+                id: id.toString(),
+                name,
+              }))}
+              onAdd={({ id, name }) => handleAddIngredient(id, name)}
+              onDelete={(i) => handleDeleteIngredient(i)}
+            />
+            {recipeIngredients.map((ingredient, i) => (
+              <div
+                key={ingredient.id}
+                className="flex flex-wrap md:flex-nowrap items-center gap-2 border border-gray-300 rounded-md p-2 my-2"
+              >
+                <input
+                  className="flex-1 border border-gray-300 rounded-md py-2 px-2"
+                  name="name"
+                  type="text"
+                  value={ingredient.name}
+                  placeholder="Nazwa składnika"
+                  disabled
+                  required
+                />
+                <input
+                  className="w-24 border border-gray-300 rounded-md py-2 px-2"
+                  name="quantity"
+                  type="text"
+                  value={ingredient.quantity}
+                  placeholder="Ilość"
+                  onChange={(e) => handleIngredientChange(e, i)}
+                  required
+                />
+                <input
+                  className="w-28 border border-gray-300 rounded-md py-2 px-2"
+                  name="unit"
+                  type="text"
+                  value={ingredient.unit}
+                  placeholder="Jednostka"
+                  onChange={(e) => handleIngredientChange(e, i)}
+                  required
+                />
                 <button
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold my-2 py-2 px-4 rounded"
                   type="button"
-                  onClick={handleAddStep}
+                  onClick={() => handleDeleteIngredient(i)}
+                  className="delete-button bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                  title="Usuń składnik"
                 >
-                  Dodaj krok
+                  &minus;
                 </button>
               </div>
+            ))}
+            <label className="text-2xl font-semibold">Tagi:</label>
+            <TagSelector
+              selectedTags={recipeTags.map(({ id, name }) => ({
+                id: id.toString(),
+                name,
+              }))}
+              availableTags={availableTags.map(({ id, name }) => ({
+                id: id.toString(),
+                name,
+              }))}
+              onAdd={({ id, name }) => handleAddTag(id, name)}
+              onDelete={(i) => handleDeleteTag(i)}
+            />
+          </div>
+          <div className="flex-1 flex flex-col">
+            <label className="text-2xl font-semibold">Opis przepisu:</label>
+            <textarea
+              className="border-2 border-gray-300 rounded-md py-2 px-1 my-4"
+              id="description"
+              name="description"
+              type="text"
+              value={recipeData.description}
+              placeholder="Opis przepisu"
+              onChange={handleInput}
+              rows={5}
+              required
+            />
+            <label className="text-2xl font-semibold">Kroki przygotowania:</label>
+            {recipeSteps.map((step, i) => (
+              <div
+                key={step.id}
+                className="flex flex-row gap-2 border border-gray-300 rounded-md p-2 my-2 items-start"
+              >
+                <div className="flex-1 flex flex-col gap-2">
+                  <input
+                    className="border border-gray-300 rounded-md py-2 px-2"
+                    id="title"
+                    name="title"
+                    type="text"
+                    value={step.title}
+                    placeholder="Tytuł kroku"
+                    onChange={(event) => handleStepChange(event, i)}
+                    required
+                  />
+                  <textarea
+                    className="border border-gray-300 rounded-md py-2 px-2"
+                    id="description"
+                    name="description"
+                    type="text"
+                    value={step.description}
+                    rows={5}
+                    placeholder="Opis kroku"
+                    onChange={(event) => handleStepChange(event, i)}
+                    required
+                  />
+                </div>
+                <button
+                  className="delete-button bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded h-fit"
+                  type="button"
+                  onClick={() => handleDeleteSteps(i)}
+                  title="Usuń krok"
+                >
+                  &minus;
+                </button>
+              </div>
+            ))}
+            <div>
+              <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold my-2 py-2 px-4 rounded"
+                type="button"
+                onClick={handleAddStep}
+              >
+                Dodaj krok
+              </button>
             </div>
-          </fieldset>
-          <button className="my-4" type="submit">
-            Dodaj przepis
-          </button>
-        </form>
-      </div>
+          </div>
+        </fieldset>
+        <button className="my-4" type="submit">
+          Dodaj przepis
+        </button>
+      </form>
     </div>
   );
 };

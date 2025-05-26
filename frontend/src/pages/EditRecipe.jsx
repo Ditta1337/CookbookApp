@@ -232,6 +232,7 @@ const EditRecipe = () => {
                   type="button"
                   onClick={() => handleDeleteIngredient(i)}
                   className="delete-button bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                  title="Usuń składnik"
                 >
                   &minus;
                 </button>
@@ -293,6 +294,7 @@ const EditRecipe = () => {
                   type="button"
                   onClick={() => handleDeleteSteps(i)}
                   className="delete-button bg-red-500 hover:bg-red-700 text-white font-bold px-4 rounded h-full"
+                  title="Usuń krok"
                 >
                   &minus;
                 </button>
@@ -308,14 +310,12 @@ const EditRecipe = () => {
           </div>
         </fieldset>
 
-        <div className="flex justify-center mt-6">
-          <button
-            type="submit"
-            className="bg-green-600 hover:bg-green-800 text-white font-bold py-3 px-6 rounded"
-          >
-            Zapisz zmiany
-          </button>
-        </div>
+        <button
+          type="submit"
+          className="bg-green-600 hover:bg-green-800 text-white font-bold py-3 px-6 rounded"
+        >
+          Zapisz zmiany
+        </button>
       </form>
     </div>
   );
