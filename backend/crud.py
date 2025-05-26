@@ -2,7 +2,9 @@ from sqlite3 import IntegrityError
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List
+from datetime import date
 from .models import *
+from .utils import import_recipe_from_website
 from . import schemas
 
 
@@ -231,7 +233,22 @@ def create_recipe(db: Session, recipe_data: schemas.RecipeCreate):
 
 
 def create_recipe_from_website(db: Session, website_url: str):
-    raise NotImplementedError("This function is not implemented yet.")
+    parsed_data = import_recipe_from_website(website_url)
+
+    recipe_schema = schemas.RecipeCreate(
+        title=parsed_data["name"],
+        description="",
+        date=date.today(),
+        img="",
+        tags=[],
+        steps=[schemas.StepCreate(title="Przygotowanie", description="\n".join(parsed_data["steps"]))],
+        ingredients=[
+            schemas.RecipeIngredientCreate(name=name, quantity=quantity, unit="szt")
+            for quantity, name in parsed_data["ingredients"]
+        ],
+    )
+
+    return create_recipe(db, recipe_schema)
 
 
 def get_recipe_by_id(db: Session, id: int):

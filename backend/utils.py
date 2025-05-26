@@ -3,6 +3,15 @@ from bs4 import BeautifulSoup
 
 
 def import_recipe_from_website(recipe_url: str):
+    """
+    Imports a recipe from a given URL.
+
+    Returns:
+        dict: A dictionary containing the recipe with the following keys:
+            - name (str): The name of the recipe.
+            - ingredients (List[str]): A list of ingredient descriptions.
+            - steps (List[tuple[str, str]]): A list of preparation steps.
+    """
     if recipe_url.startswith(
         ("https://www.kwestiasmaku.com/", "https://kwestiasmaku.com/")
     ):
@@ -28,7 +37,20 @@ def _import_recipe_from_website_kwestiasmaku(recipe_url: str):
     recipe_name = recipe_name_tag.get_text(strip=True) if recipe_name_tag else None
 
     ingredients_tags = soup.select(".group-skladniki ul li")
-    ingredients = [tag.get_text(strip=True) for tag in ingredients_tags]
+    ingredients = []
+    for tag in ingredients_tags:
+        ingredient = tag.get_text(strip=True)
+        ingredient = ingredient.strip("ok.").strip("około").strip()
+        if ingredient[0].isdigit():
+            try:
+                quantity, name = ingredient.split(" ", 1)
+                quantity = int(quantity)
+                ingredients.append((quantity, name))
+            except ValueError:
+                # todo: fix this (when quantity is not an integer)
+                ingredients.append((1, ingredient))
+        else:
+            ingredients.append((1, ingredient))
 
     steps_tags = soup.select(".group-przepis ul li")
     steps = [tag.get_text(strip=True) for tag in steps_tags]
