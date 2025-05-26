@@ -65,6 +65,16 @@ export const mockIngredientData = async () => {
   return ingredient;
 };
 
+export const getAllIngredients = async () => {
+  return await Promise.resolve([
+    { name: "mąka", id: 1 },
+    { name: "mleko", id: 2 },
+    { name: "jajko", id: 3 },
+    { name: "woda", id: 4 },
+    { name: "cukier", id: 5 },
+  ]);
+};
+
 export const sendNewIngredient = async (name) => {
   const response = await sendPostRequest("/ingredients/", { name });
   const newIngredient = await response.json();

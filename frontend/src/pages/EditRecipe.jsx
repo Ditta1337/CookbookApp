@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { TagSelector } from "../components/TagSelector";
+import { getAllIngredients, getAllTags, sendNewIngredient, sendNewTag } from "../../utils/network";
 
 const EditRecipe = () => {
   const { id: recipeId } = useParams();
 
   const [stepId, setStepId] = useState(1);
-  const [ingredientId, setIngredientId] = useState(1);
-  const [tagId, setTagId] = useState(1);
 
   const getDate = () => {
     const date = new Date();
@@ -24,11 +24,11 @@ const EditRecipe = () => {
     date: getDate(),
   });
 
-  const [recipeTags, setRecipeTags] = useState([{ id: 0, name: "" }]);
+  const [recipeTags, setRecipeTags] = useState([]);
+  const [availableTags, setAvailableTags] = useState([]);
   const [recipeSteps, setRecipeSteps] = useState([{ id: 0, title: "", description: "" }]);
-  const [recipeIngredients, setRecipeIngredients] = useState([
-    { id: 0, name: "", quantity: 0, unit: "" },
-  ]);
+  const [recipeIngredients, setRecipeIngredients] = useState([]);
+  const [availableIngredients, setAvailableIngredients] = useState([]);
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -47,9 +47,7 @@ const EditRecipe = () => {
         setRecipeSteps(data.steps.map((step, i) => ({ id: i, ...step })));
         setRecipeIngredients(data.ingredients.map((ing, i) => ({ id: i, ...ing })));
 
-        setTagId(data.tags.length);
         setStepId(data.steps.length);
-        setIngredientId(data.ingredients.length);
       } catch (error) {
         console.error("Błąd podczas pobierania przepisu:", error);
       }
@@ -57,6 +55,17 @@ const EditRecipe = () => {
 
     fetchRecipe();
   }, [recipeId]);
+
+  useEffect(() => {
+    async function fetchTagsAndIngredients() {
+      const tags = await getAllTags();
+      const ingredients = await getAllIngredients();
+      setAvailableTags(tags);
+      setAvailableIngredients(ingredients);
+    }
+
+    fetchTagsAndIngredients();
+  }, []);
 
   const handleInput = (e) => {
     const { name, value } = e.target;
@@ -77,29 +86,29 @@ const EditRecipe = () => {
     setRecipeIngredients(updated);
   };
 
-  const handleTagChange = (e, i) => {
-    const { name, value } = e.target;
-    const updated = [...recipeTags];
-    updated[i][name] = value;
-    setRecipeTags(updated);
-  };
-
   const handleAddStep = () => {
     setRecipeSteps([...recipeSteps, { id: stepId, title: "", description: "" }]);
     setStepId(stepId + 1);
   };
 
-  const handleAddIngredient = () => {
-    setRecipeIngredients([
-      ...recipeIngredients,
-      { id: ingredientId, name: "", quantity: 0, unit: "" },
-    ]);
-    setIngredientId(ingredientId + 1);
+  const handleAddTag = async (newId, name) => {
+    let id = Number(newId);
+    if (isNaN(id)) {
+      const newTag = await sendNewTag(name);
+      setAvailableTags((allTags) => [...allTags, newTag]);
+      id = newTag.id;
+    }
+    setRecipeTags([...recipeTags, { id, name }]);
   };
 
-  const handleAddTag = () => {
-    setRecipeTags([...recipeTags, { id: tagId, name: "" }]);
-    setTagId(tagId + 1);
+  const handleAddIngredient = async (newId, name) => {
+    let id = Number(newId);
+    if (isNaN(id)) {
+      const newIngredient = await sendNewIngredient(name);
+      setAvailableIngredients((allIngredients) => [...allIngredients, newIngredient]);
+      id = newIngredient.id;
+    }
+    setRecipeIngredients([...recipeIngredients, { id, name, quantity: 0, unit: "" }]);
   };
 
   const handleDeleteSteps = (i) => {
@@ -108,13 +117,13 @@ const EditRecipe = () => {
     setRecipeSteps(updated);
   };
 
-  const handleDeleteIngredients = (i) => {
+  const handleDeleteIngredient = (i) => {
     const updated = [...recipeIngredients];
     updated.splice(i, 1);
     setRecipeIngredients(updated);
   };
 
-  const handleDeleteTags = (i) => {
+  const handleDeleteTag = (i) => {
     const updated = [...recipeTags];
     updated.splice(i, 1);
     setRecipeTags(updated);
@@ -175,15 +184,30 @@ const EditRecipe = () => {
               required
             />
             <label className="text-2xl font-semibold">Składniki:</label>
+            <TagSelector
+              selectedTags={recipeIngredients.map(({ id, name }) => ({
+                id: id.toString(),
+                name,
+              }))}
+              availableTags={availableIngredients.map(({ id, name }) => ({
+                id: id.toString(),
+                name,
+              }))}
+              onAdd={({ id, name }) => handleAddIngredient(id, name)}
+              onDelete={(i) => handleDeleteIngredient(i)}
+            />
             {recipeIngredients.map((ingredient, i) => (
-              <div key={ingredient.id} className="flex flex-wrap md:flex-nowrap gap-2 border border-gray-300 rounded-md p-2 my-2">
+              <div
+                key={ingredient.id}
+                className="flex flex-wrap md:flex-nowrap gap-2 border border-gray-300 rounded-md p-2 my-2"
+              >
                 <input
                   className="flex-1 border border-gray-300 rounded-md py-2 px-2"
                   name="name"
                   type="text"
                   value={ingredient.name}
                   placeholder="Nazwa składnika"
-                  onChange={(e) => handleIngredientChange(e, i)}
+                  disabled
                   required
                 />
                 <input
@@ -206,49 +230,26 @@ const EditRecipe = () => {
                 />
                 <button
                   type="button"
-                  onClick={() => handleDeleteIngredients(i)}
+                  onClick={() => handleDeleteIngredient(i)}
                   className="delete-button bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
                 >
                   &minus;
                 </button>
               </div>
             ))}
-            <button
-              type="button"
-              onClick={handleAddIngredient}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2"
-            >
-              Dodaj składnik
-            </button>
-
             <label className="text-2xl font-semibold">Tagi:</label>
-            {recipeTags.map((tag, i) => (
-              <div key={tag.id} className="flex items-center gap-2 border border-gray-300 rounded-md p-2 my-2">
-                <input
-                  className="flex-1 border border-gray-300 rounded-md py-2 px-2"
-                  name="name"
-                  type="text"
-                  value={tag.name}
-                  placeholder="Nazwa tagu"
-                  onChange={(e) => handleTagChange(e, i)}
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => handleDeleteTags(i)}
-                  className="delete-button bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  &minus;
-                </button>
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={handleAddTag}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2"
-            >
-              Dodaj tag
-            </button>
+            <TagSelector
+              selectedTags={recipeTags.map(({ id, name }) => ({
+                id: id.toString(),
+                name,
+              }))}
+              availableTags={availableTags.map(({ id, name }) => ({
+                id: id.toString(),
+                name,
+              }))}
+              onAdd={({ id, name }) => handleAddTag(id, name)}
+              onDelete={(i) => handleDeleteTag(i)}
+            />
           </div>
           <div className="flex-1 flex flex-col">
             <label className="text-2xl font-semibold">Opis przepisu:</label>
@@ -261,44 +262,49 @@ const EditRecipe = () => {
               rows={5}
               required
             />
-          <label className="text-2xl font-semibold">Kroki przygotowania:</label>
-          {recipeSteps.map((step, i) => (
-          <div key={step.id} className="flex flex-row gap-2 border border-gray-300 rounded-md p-4 my-2 items-stretch">              <div className="flex-1 flex flex-col gap-2">
-              <input
-                className="border border-gray-300 rounded-md py-2 px-2"
-                name="title"
-                type="text"
-                value={step.title}
-                placeholder="Tytuł kroku"
-                onChange={(e) => handleStepChange(e, i)}
-                required
-              />
-              <textarea
-                className="border border-gray-300 rounded-md py-2 px-2"
-                name="description"
-                value={step.description}
-                placeholder="Opis kroku"
-                rows={4}
-                onChange={(e) => handleStepChange(e, i)}
-                required
-              />
-              </div>
-              <button
-                type="button"
-                onClick={() => handleDeleteSteps(i)}
-                className="delete-button bg-red-500 hover:bg-red-700 text-white font-bold px-4 rounded h-full"
+            <label className="text-2xl font-semibold">Kroki przygotowania:</label>
+            {recipeSteps.map((step, i) => (
+              <div
+                key={step.id}
+                className="flex flex-row gap-2 border border-gray-300 rounded-md p-4 my-2 items-stretch"
               >
-                &minus;
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={handleAddStep}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4"
-          >
-            Dodaj krok
-          </button>
+                {" "}
+                <div className="flex-1 flex flex-col gap-2">
+                  <input
+                    className="border border-gray-300 rounded-md py-2 px-2"
+                    name="title"
+                    type="text"
+                    value={step.title}
+                    placeholder="Tytuł kroku"
+                    onChange={(e) => handleStepChange(e, i)}
+                    required
+                  />
+                  <textarea
+                    className="border border-gray-300 rounded-md py-2 px-2"
+                    name="description"
+                    value={step.description}
+                    placeholder="Opis kroku"
+                    rows={4}
+                    onChange={(e) => handleStepChange(e, i)}
+                    required
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteSteps(i)}
+                  className="delete-button bg-red-500 hover:bg-red-700 text-white font-bold px-4 rounded h-full"
+                >
+                  &minus;
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={handleAddStep}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4"
+            >
+              Dodaj krok
+            </button>
           </div>
         </fieldset>
 

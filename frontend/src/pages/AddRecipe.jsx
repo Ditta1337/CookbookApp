@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import { TagSelector } from "../components/TagSelector";
-import { getAllTags, sendNewIngredient, sendNewTag } from "../../utils/network";
+import { getAllIngredients, getAllTags, sendNewIngredient, sendNewTag } from "../../utils/network";
 
 const AddRecipe = () => {
   const recipeId = 0;
@@ -35,10 +35,9 @@ const AddRecipe = () => {
   useEffect(() => {
     async function fetchTagsAndIngredients() {
       const tags = await getAllTags();
-      // TODO: IMPORTANT!
-      // change the below to render only ingredients and only tags specifically
-      setAvailableIngredients(tags);
+      const ingredients = await getAllIngredients();
       setAvailableTags(tags);
+      setAvailableIngredients(ingredients);
     }
 
     fetchTagsAndIngredients();
