@@ -47,6 +47,14 @@ def create_recipe(recipe_data: schemas.RecipeCreate, db: Session = Depends(get_d
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
+@app.post("/recipes/from_website", response_model=schemas.RecipeFullOut)
+def create_recipe_from_website(website_url: str, db: Session = Depends(get_db)):
+    try:
+        recipe = crud.create_recipe_from_website(db, website_url)
+        return crud.get_recipe_by_id(db, recipe.id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/recipes/all", response_model=List[schemas.RecipeFullOut])
 def get_recipes(db: Session = Depends(get_db)):
     try:
