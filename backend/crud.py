@@ -243,8 +243,8 @@ def create_recipe_from_website(db: Session, website_url: str):
         tags=[],
         steps=[schemas.StepCreate(title="Przygotowanie", description="\n".join(parsed_data["steps"]))],
         ingredients=[
-            schemas.RecipeIngredientCreate(name=name, quantity=quantity, unit="szt")
-            for quantity, name in parsed_data["ingredients"]
+            schemas.RecipeIngredientCreate(name=name, quantity=quantity, unit=unit)
+            for quantity, unit, name in parsed_data["ingredients"]
         ],
     )
 

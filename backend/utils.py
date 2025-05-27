@@ -10,7 +10,7 @@ def import_recipe_from_website(recipe_url: str):
         dict: A dictionary containing the recipe with the following keys:
             - name (str): The name of the recipe.
             - ingredients (List[str]): A list of ingredient descriptions.
-            - steps (List[tuple[str, str]]): A list of preparation steps.
+            - steps (List[tuple[int, str, str]]): A list of preparation steps.
     """
     if recipe_url.startswith(
         ("https://www.kwestiasmaku.com/", "https://kwestiasmaku.com/")
@@ -45,12 +45,12 @@ def _import_recipe_from_website_kwestiasmaku(recipe_url: str):
             try:
                 quantity, name = ingredient.split(" ", 1)
                 quantity = int(quantity)
-                ingredients.append((quantity, name))
+                ingredients.append((quantity, "szt", name))
             except ValueError:
                 # todo: fix this (when quantity is not an integer)
-                ingredients.append((1, ingredient))
+                ingredients.append((1, "szt", ingredient))
         else:
-            ingredients.append((1, ingredient))
+            ingredients.append((1, "szt", ingredient))
 
     steps_tags = soup.select(".group-przepis ul li")
     steps = [tag.get_text(strip=True) for tag in steps_tags]
@@ -76,7 +76,7 @@ def _import_recipe_from_website_aniagotuje(recipe_url: str):
     for name_tag, quantity_tag in zip(ingredients_name_tags, ingredients_quantity_tags):
         name = name_tag.get_text(strip=True)
         quantity = quantity_tag.get_text(strip=True)
-        ingredients.append((1, f"{quantity} {name}"))
+        ingredients.append((1, "szt", f"{quantity} {name}"))
 
     steps_tags = soup.select("div.step-text p")
     steps = [tag.get_text(strip=True) for tag in steps_tags]
