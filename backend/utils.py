@@ -54,6 +54,7 @@ def _import_recipe_from_website_kwestiasmaku(recipe_url: str):
 
     steps_tags = soup.select(".group-przepis ul li")
     steps = [tag.get_text(strip=True) for tag in steps_tags]
+
     return {"name": recipe_name, "ingredients": ingredients, "steps": steps}
 
 
@@ -62,12 +63,37 @@ def _import_recipe_from_website_mojewypieki(recipe_url: str):
 
 
 def _import_recipe_from_website_aniagotuje(recipe_url: str):
-    raise NotImplementedError("This function is not implemented yet.")
+    response = requests.get(recipe_url)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    recipe_name_tag = soup.select_one("h1")
+    recipe_name = recipe_name_tag.get_text(strip=True) if recipe_name_tag else None
+
+    ingredients_name_tags = soup.select("#recipeIngredients ul li span.ingredient")
+    ingredients_quantity_tags = soup.select("#recipeIngredients ul li span.qty")
+    ingredients = []
+    for name_tag, quantity_tag in zip(ingredients_name_tags, ingredients_quantity_tags):
+        name = name_tag.get_text(strip=True)
+        quantity = quantity_tag.get_text(strip=True)
+        ingredients.append((1, f"{quantity} {name}"))
+
+    steps_tags = soup.select("div.step-text p")
+    steps = [tag.get_text(strip=True) for tag in steps_tags]
+
+    return {"name": recipe_name, "ingredients": ingredients, "steps": steps}
 
 
 if __name__ == "__main__":
-    print(
+    from pprint import pprint
+
+    pprint(
         import_recipe_from_website(
             "https://www.kwestiasmaku.com/przepis/ciasto-truskawkowa-chmurka"
+        )
+    )
+    pprint(
+        import_recipe_from_website(
+            "https://www.aniagotuje.pl/przepis/ciastka-owsiane-pistacjowe"
         )
     )
