@@ -1,0 +1,30 @@
+#recipe-creation-methods:not(:hover) #rolldown-menu.closed {
+  max-height: 0;
+}
+
+#rolldown-menu {
+  position: absolute;
+  overflow: hidden;
+  transition: max-height 1s ease-out;
+  max-height: 100%;
+}
+
+#rolldown-menu>div {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 3px solid grey;
+  padding: 6px;
+  background-color: rgba(77, 77, 77, 0.226);
+}
+
+#rolldown-menu div, #rolldown-menu label {
+  cursor: pointer;
+}
+
+.url-import:hover, #rolldown-menu>div>div:hover, #rolldown-menu label:hover {
+  color: #a4a4a9;
+}
+
+#rolldown-menu div input {
+    height: 0;
+}
