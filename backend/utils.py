@@ -1,6 +1,39 @@
 import requests
 from bs4 import BeautifulSoup
 
+UNITS = [
+    "litr",
+    "litry",
+    "litrów",
+    "l",
+    "mililitr",
+    "mililitry",
+    "mililitrów",
+    "ml",
+    "gram",
+    "gramy",
+    "gramów",
+    "g",
+    "miligram",
+    "miligramy",
+    "miligramów",
+    "mg",
+    "łyżeczka",
+    "łyżeczki",
+    "łyżeczek",
+    "łyżka",
+    "łyżki",
+    "łyżek",
+    "opakowanie",
+    "opakowania",
+    "opakowań",
+    "op.",
+    "szklanka",
+    "szklanki",
+    "szklanek",
+    "szk.",
+]
+
 
 def import_recipe_from_website(recipe_url: str):
     """
@@ -41,14 +74,15 @@ def _import_recipe_from_website_kwestiasmaku(recipe_url: str):
     for tag in ingredients_tags:
         ingredient = tag.get_text(strip=True)
         ingredient = ingredient.strip("ok.").strip("około").strip()
-        if ingredient[0].isdigit():
-            try:
-                quantity, name = ingredient.split(" ", 1)
-                quantity = int(quantity)
-                ingredients.append((quantity, "szt", name))
-            except ValueError:
-                # todo: fix this (when quantity is not an integer)
-                ingredients.append((1, "szt", ingredient))
+        if ingredient.split(" ")[0].isdigit():
+            quantity, unit_name = ingredient.split(" ", maxsplit=1)
+            quantity = int(quantity)
+            if unit_name.split(" ")[0] in UNITS:
+                unit, name = unit_name.split(" ", maxsplit=1)
+            else:
+                unit, name = "szt", unit_name
+
+            ingredients.append((quantity, unit, name))
         else:
             ingredients.append((1, "szt", ingredient))
 
@@ -75,8 +109,15 @@ def _import_recipe_from_website_aniagotuje(recipe_url: str):
     ingredients = []
     for name_tag, quantity_tag in zip(ingredients_name_tags, ingredients_quantity_tags):
         name = name_tag.get_text(strip=True)
-        quantity = quantity_tag.get_text(strip=True)
-        ingredients.append((1, "szt", f"{quantity} {name}"))
+        quantity_unit = quantity_tag.get_text(strip=True)
+        quantity_unit = quantity_unit.split("-")[0].strip()
+        if quantity_unit.split(" ", maxsplit=1)[0].isdigit():
+            quantity, unit = quantity_unit.split(" ", maxsplit=1)
+            quantity = int(quantity)
+        else:
+            quantity = 1
+            unit = quantity_unit
+        ingredients.append((quantity, unit, name))
 
     steps_tags = soup.select("div.step-text p")
     steps = [tag.get_text(strip=True) for tag in steps_tags]
