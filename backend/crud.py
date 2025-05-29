@@ -12,6 +12,7 @@ from . import schemas
 def get_ingredient_by_name(db: Session, name: str):
     return db.query(Ingredient).filter(Ingredient.name == name).first()
 
+
 def create_ingredient(db: Session, name: str):
     try:
         ingredient = Ingredient(name=name)
@@ -23,12 +24,15 @@ def create_ingredient(db: Session, name: str):
         db.rollback()
         raise ValueError("Ingredient already exists.")
 
+
 # Metody dla tabeli Units
 def get_unit_by_name(db: Session, name: str):
     return db.query(Unit).filter(Unit.name == name).first()
 
+
 def get_all_units(db: Session):
     return db.query(Unit).all()
+
 
 def create_unit(db: Session, name: str):
     try:
@@ -74,6 +78,7 @@ def delete_unit(db: Session, id: int):
 # Metody dla tabeli UnitConversion
 def get_convertible_units(db: Session, unit_id: int):
     return db.query(UnitConversion).filter(UnitConversion.from_unit_id == unit_id).all()
+
 
 def get_all_unit_conversions(db: Session):
     return db.query(UnitConversion).all()
@@ -121,13 +126,16 @@ def delete_unit_conversion(db: Session, from_unit_id: int, to_unit_id: int):
 
 # Metody dla tabeli IngredientUnitConversion
 def get_convertible_ingredient_units(db: Session, ingredient_id: int, unit_id: int):
-    return db.query(IngredientUnitConversion).filter(IngredientUnitConversion.ingredient_id == ingredient_id, IngredientUnitConversion.from_unit_id == unit_id).all()
+    return db.query(IngredientUnitConversion).filter(IngredientUnitConversion.ingredient_id == ingredient_id,
+                                                     IngredientUnitConversion.from_unit_id == unit_id).all()
+
 
 def get_all_ingredient_unit_conversions(db: Session):
     return db.query(IngredientUnitConversion).all()
 
 
-def create_ingredient_unit_conversion(db: Session, ingredient_id: int, from_unit_id: int, to_unit_id: int, multiplier: float):
+def create_ingredient_unit_conversion(db: Session, ingredient_id: int, from_unit_id: int, to_unit_id: int,
+                                      multiplier: float):
     try:
         ingredient_unit_conversion = IngredientUnitConversion(ingredient_id=ingredient_id, from_unit_id=from_unit_id,
                                                               to_unit_id=to_unit_id, multiplier=multiplier)
@@ -210,10 +218,9 @@ def create_recipe(db: Session, recipe_data: schemas.RecipeCreate):
         db.add(recipe_ingredient)
 
     for step_order, step_data in enumerate(recipe_data.steps, start=1):
-        step = db.query(Step).filter(Step.title == step_data.title).first()
+        step = db.query(Step).first()
         if not step:
             step = Step(
-                title=step_data.title,
                 description=step_data.description
             )
             db.add(step)
@@ -280,9 +287,10 @@ def get_recipe_by_id(db: Session, id: int):
         "id": recipe.id,
         "title": recipe.name,
         "img": recipe.img,
+        "date":recipe.date,
         "description": recipe.description,
-        "tags": [tag.name for tag in tags],
-        "steps": [{"title": step.title, "description": step.description} for step in steps],
+        "tags": [{"id": tag.id, "name": tag.name} for tag in tags],
+        "steps": [{"id": step.id, "description": step.description} for step in steps],
         "ingredients": []
     }
 
@@ -313,6 +321,7 @@ def get_recipe_by_id(db: Session, id: int):
         conversions = unit_conversion_list + ingredient_unit_conversion_list
 
         recipe_data["ingredients"].append({
+            "id": ingredient_obj.id,
             "name": ingredient_obj.name,
             "quantity": quantity,
             "unit": unit_obj.name,
@@ -323,49 +332,8 @@ def get_recipe_by_id(db: Session, id: int):
 
 
 def get_all_recipes(db: Session):
-    recipes = db.query(Recipe).all()
-
-    recipe_data = []
-    for recipe in recipes:
-        tag_ids = (
-            db.query(RecipeToTag.tag_id)
-            .filter(RecipeToTag.recipe_id == recipe.id)
-            .subquery()
-        )
-        tags = db.query(Tag).filter(Tag.id.in_(tag_ids)).all()
-
-        step_ids = (
-            db.query(RecipeSteps.step_id)
-            .filter(RecipeSteps.recipe_id == recipe.id)
-            .subquery()
-        )
-        steps = db.query(Step).filter(Step.id.in_(step_ids)).all()
-
-        ingredients = (
-            db.query(RecipesToIngredients.quantity, Ingredient, Unit)
-            .join(Ingredient, Ingredient.id == RecipesToIngredients.ingredient_id)
-            .join(Unit, Unit.id == RecipesToIngredients.unit_id)
-            .filter(RecipesToIngredients.recipe_id == recipe.id)
-            .all()
-        )
-
-        recipe_data.append({
-            "id": recipe.id,
-            "title": recipe.name,
-            "img":recipe.img,
-            "description": recipe.description,
-            "tags": [tag.name for tag in tags],
-            "steps": [{"title": step.title, "description": step.description} for step in steps],
-            "ingredients": [{
-                "name": ingredient[1].name,
-                "quantity": ingredient[0],
-                "unit": ingredient[2].name,
-            } for ingredient in ingredients]
-        })
-        # print(recipe_data)
-
-    return recipe_data
-
+    recipe_ids = [row.id for row in db.query(Recipe.id).all()]
+    return [get_recipe_by_id(db, rid) for rid in recipe_ids]
 
 
 def get_recipes_by_names_and_tags(db: Session, name: str = None, tags: list[str] = None, limit_: int = 10):
@@ -375,56 +343,19 @@ def get_recipes_by_names_and_tags(db: Session, name: str = None, tags: list[str]
         query = query.filter(Recipe.name.ilike(f"%{name}%"))
 
     if tags:
-        query = query.join(RecipeToTag).join(Tag).filter(Tag.name.in_(tags))
+        query = query.join(RecipeToTag).join(Tag).filter(Tag.name.in_(tags)).distinct()
 
     recipes = query.limit(limit_).all()
 
-    recipe_data = []
-    for recipe in recipes:
-        tag_ids = (
-            db.query(RecipeToTag.tag_id)
-            .filter(RecipeToTag.recipe_id == recipe.id)
-            .subquery()
-        )
-        tags = db.query(Tag).filter(Tag.id.in_(tag_ids)).all()
+    return [get_recipe_by_id(db, recipe.id) for recipe in recipes]
 
-        step_ids = (
-            db.query(RecipeSteps.step_id)
-            .filter(RecipeSteps.recipe_id == recipe.id)
-            .subquery()
-        )
-        steps = db.query(Step).filter(Step.id.in_(step_ids)).all()
-
-        ingredients = (
-            db.query(RecipesToIngredients.quantity, Ingredient, Unit)
-            .join(Ingredient, Ingredient.id == RecipesToIngredients.ingredient_id)
-            .join(Unit, Unit.id == RecipesToIngredients.unit_id)
-            .filter(RecipesToIngredients.recipe_id == recipe.id)
-            .all()
-        )
-
-        recipe_data.append({
-            "id": recipe.id,
-            "title": recipe.name,
-            "img": recipe.img,
-            "description": recipe.description,
-            "tags": [tag.name for tag in tags],
-            "steps": [{"title": step.title, "description": step.description} for step in steps],
-            "ingredients": [{
-                "name": ingredient[1].name,
-                "quantity": ingredient[0],
-                "unit": ingredient[2].name,
-            } for ingredient in ingredients]
-        })
-
-    return recipe_data
 
 def update_recipe(db: Session, id: int, recipe_data: schemas.RecipeCreate):
     recipe = db.query(Recipe).filter(Recipe.id == id).first()
     if recipe:
-        delete_recipe(db,id)
-        recipe=create_recipe(db,recipe_data)
-        return get_recipe_by_id(db,recipe.id)
+        delete_recipe(db, id)
+        recipe = create_recipe(db, recipe_data)
+        return get_recipe_by_id(db, recipe.id)
     else:
         raise ValueError(f"Recipe with ID {id} not found.")
 
@@ -435,8 +366,10 @@ def delete_recipe(db: Session, recipe_id: int):
         raise ValueError(f"Recipe with ID {recipe_id} not found.")
 
     tag_ids = [rt.tag_id for rt in db.query(RecipeToTag).filter(RecipeToTag.recipe_id == recipe_id).all()]
-    ingredient_ids = [ri.ingredient_id for ri in db.query(RecipesToIngredients).filter(RecipesToIngredients.recipe_id == recipe_id).all()]
-    unit_ids = [ri.unit_id for ri in db.query(RecipesToIngredients).filter(RecipesToIngredients.recipe_id == recipe_id).all()]
+    ingredient_ids = [ri.ingredient_id for ri in
+                      db.query(RecipesToIngredients).filter(RecipesToIngredients.recipe_id == recipe_id).all()]
+    unit_ids = [ri.unit_id for ri in
+                db.query(RecipesToIngredients).filter(RecipesToIngredients.recipe_id == recipe_id).all()]
     step_ids = [rs.step_id for rs in db.query(RecipeSteps).filter(RecipeSteps.recipe_id == recipe_id).all()]
 
     db.query(RecipeToTag).filter(RecipeToTag.recipe_id == recipe_id).delete()
@@ -446,7 +379,7 @@ def delete_recipe(db: Session, recipe_id: int):
     db.delete(recipe)
     db.commit()
 
-    #usuwanie danych w pozostalych tabelach ktore nie sa uzywane
+    # usuwanie danych w pozostalych tabelach ktore nie sa uzywane
     for tag_id in tag_ids:
         exists = db.query(RecipeToTag).filter(RecipeToTag.tag_id == tag_id).first()
         if not exists:
@@ -471,8 +404,10 @@ def delete_recipe(db: Session, recipe_id: int):
 
     return {"message": "Recipe and unused related data deleted successfully"}
 
+
 def get_tag_by_name(db: Session, name: str):
     return db.query(Tag).filter(Tag.name == name).first()
+
 
 def create_tag(db: Session, name: str):
     tag = Tag(name=name)
@@ -491,8 +426,8 @@ def link_recipe_to_tag(db: Session, recipe_id: int, tag_id: int):
         db.rollback()
 
 
-def create_step(db: Session, step_id: int,title:str,description:str):
-    step = Step(id=step_id,title=title,description=description)
+def create_step(db: Session, step_id: int, description: str):
+    step = Step(id=step_id, description=description)
     db.add(step)
     db.commit()
     db.refresh(step)
@@ -508,8 +443,10 @@ def link_step_to_recipe(db: Session, recipe_id: int, step_id: int, step_order: i
 def get_ingredient_by_name(db: Session, name: str):
     return db.query(Ingredient).filter(Ingredient.name == name).first()
 
+
 def get_units_for_ingredient(db: Session, ingredient_id: int):
-    return db.query(Unit).join(IngredientUnitConversion).filter(IngredientUnitConversion.ingredient_id == ingredient_id).all()
+    return db.query(Unit).join(IngredientUnitConversion).filter(
+        IngredientUnitConversion.ingredient_id == ingredient_id).all()
 
 
 from sqlalchemy.exc import IntegrityError
@@ -541,8 +478,10 @@ def link_ingredient_to_recipe(db: Session, recipe_id: int, ingredient_id: int, q
     except IntegrityError:
         db.rollback()
 
+
 def get_all_tags(db: Session):
     return db.query(Tag).all()
+
 
 def get_tags_by_name_pattern(db: Session, pattern: str, limit: int):
     return db.query(Tag).filter(Tag.name.contains(pattern)).limit(limit).all()

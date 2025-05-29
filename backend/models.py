@@ -45,7 +45,6 @@ class Ingredient(Base):
 class Step(Base):
     __tablename__ = "STEPS"
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, index=True)
     description = Column(String)
 
 

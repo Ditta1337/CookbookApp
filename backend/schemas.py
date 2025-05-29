@@ -2,7 +2,8 @@ from pydantic import BaseModel
 from datetime import date
 from typing import List, Optional
 
-#Ten plik jest po to żeby fast api wiedzalo co ma dostac z http i odwrotnie
+
+# Ten plik jest po to żeby fast api wiedzalo co ma dostac z http i odwrotnie
 
 class RecipeCreate(BaseModel):
     title: str
@@ -13,12 +14,18 @@ class RecipeCreate(BaseModel):
     steps: List["StepCreate"]
     ingredients: List["RecipeIngredientCreate"]
 
+class RecipeInFile(BaseModel):
+    recipes: List[RecipeCreate]
+
+
 class RecipeSearchQuery(BaseModel):
     name: str
-    limit: Optional[int] = 10  # Domyślnie 10
+    limit: Optional[int] = 10
+
 
 class TagCreate(BaseModel):
     name: str
+
 
 class TagRead(TagCreate):
     id: int
@@ -26,29 +33,33 @@ class TagRead(TagCreate):
     class Config:
         from_attributes = True  # a to jest podobno jakby na odwrot
 
+
 class StepCreate(BaseModel):
-    title:str
-    description:str
+    description: str
 
     class Config:
         orm_mode = True
+
 
 class RecipeIngredientCreate(BaseModel):
-    name:str
-    quantity:int
-    unit:str
+    name: str
+    quantity: int
+    unit: str
+
 
 class IngredientCreate(BaseModel):
-    name:str
+    name: str
 
     class Config:
         orm_mode = True
+
 
 class UnitCreate(BaseModel):
     name: str
 
     class Config:
         orm_mode = True
+
 
 class UnitConversionCreate(BaseModel):
     from_unit_id: int
@@ -57,6 +68,7 @@ class UnitConversionCreate(BaseModel):
 
     class Config:
         orm_mode = True
+
 
 class IngredientUnitConversionCreate(BaseModel):
     ingredient_id: int
@@ -69,20 +81,29 @@ class IngredientUnitConversionCreate(BaseModel):
 
 
 class IngredientOut(BaseModel):
+    id:int
     name: str
     quantity: float
     unit: str
 
+
 class StepOut(BaseModel):
-    title: str
+    id: int
     description: str
 
-class RecipeFullOut(BaseModel):
+
+class TagOut(BaseModel):
     id:int
+    name: str
+
+
+class RecipeFullOut(BaseModel):
+    id: int
     title: str
-    img:str
+    img: str
+    date:date
     description: str
-    tags: List[str]
+    tags: List[TagOut]
     steps: List[StepOut]
     ingredients: List[IngredientOut]
 
