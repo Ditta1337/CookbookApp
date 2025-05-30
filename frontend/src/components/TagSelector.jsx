@@ -14,8 +14,9 @@ export const TagSelector = ({ selectedTags, availableTags, onAdd, onDelete, noCr
       allowDragDrop={false}
       classNames={{
         tagInputField: "py-2 px-2 my-4 mx-2 font-semibold border-gray-300 border-2 rounded-md",
-        tag: "py-2 px-2 my-4 mx-2 font-semibold border-gray-300 border-2 rounded-md",
+        tag: "py-2 px-2 my-1 mx-1 font-semibold border-gray-300 border-2 rounded-md",
         remove: "p-[8px]! ml-2 bg-red-800!",
+        selected: "flex justify-center flex-wrap",
         suggestions: "py-2 px-2 font-semibold border-gray-300 border-1 rounded-md",
         activeSuggestion: "py-2 px-2 font-semibold border-blue-300 border-1 rounded-md",
       }}

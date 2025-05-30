@@ -135,3 +135,22 @@ export const sendNewTag = async (name) => {
   const response = await sendPostRequest("/tags/post", { name });
   return await response.json();
 };
+
+export const sendRecipeURL = async (url) => {
+  const response = await sendPostRequest(`/recipes/from_website?website_url=${url}`);
+  const { id } = await response.json();
+  return id;
+}
+
+export const sendRecipesFile = async (file) => {
+  let formData = new FormData();
+  formData.append('file', file);
+
+  // TODO: update the endpoint address
+  const response = await fetch("http://localhost:8000", {
+    method: "POST",
+    body: formData,
+  });
+
+  return await response.json();
+}
