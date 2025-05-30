@@ -93,7 +93,34 @@ def _import_recipe_from_website_kwestiasmaku(recipe_url: str):
 
 
 def _import_recipe_from_website_mojewypieki(recipe_url: str):
-    raise NotImplementedError("This function is not implemented yet.")
+    response = requests.get(recipe_url)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    recipe_name_tag = soup.select_one(".title h1")
+    recipe_name = recipe_name_tag.get_text(strip=True) if recipe_name_tag else None
+
+    ingredients_tags = soup.select(".article__content ul li")
+    ingredients = []
+    for tag in ingredients_tags:
+        ingredient = tag.get_text(strip=True)
+        ingredient = ingredient.strip("ok.").strip("około").strip()
+        if ingredient.split(" ")[0].isdigit():
+            quantity, unit_name = ingredient.split(" ", maxsplit=1)
+            quantity = int(quantity)
+            if unit_name.split(" ")[0] in UNITS:
+                unit, name = unit_name.split(" ", maxsplit=1)
+            else:
+                unit, name = "szt", unit_name
+
+            ingredients.append((quantity, unit, name))
+        else:
+            ingredients.append((1, "szt", ingredient))
+
+    steps_tags = soup.select('.article__content>p[style*="text-align: justify;"]')
+    steps = [tag.get_text(strip=True) for tag in steps_tags]
+
+    return {"name": recipe_name, "ingredients": ingredients, "steps": steps}
 
 
 def _import_recipe_from_website_aniagotuje(recipe_url: str):
@@ -136,5 +163,10 @@ if __name__ == "__main__":
     pprint(
         import_recipe_from_website(
             "https://www.aniagotuje.pl/przepis/ciastka-owsiane-pistacjowe"
+        )
+    )
+    pprint(
+        import_recipe_from_website(
+            "https://mojewypieki.com/przepis/tarta-z-rabarbarem-i-truskawkami"
         )
     )
