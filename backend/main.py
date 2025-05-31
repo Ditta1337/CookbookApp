@@ -185,6 +185,12 @@ def search_tags(pattern: str, limit: int = 10, db: Session = Depends(get_db)):
 
 
 # Endpointy dla tabeli Ingredients
+@app.get("/ingredients/", response_model=List[schemas.IngredientCreate])
+def read_all_ingredients(db: Session = Depends(get_db)):
+    ingredients = crud.get_all_ingredients(db)
+    return ingredients
+
+
 @app.post("/ingredients/", response_model=schemas.IngredientCreate)
 def create_new_ingredient(ingredient: schemas.IngredientCreate, db: Session = Depends(get_db)):
     try:

@@ -452,6 +452,9 @@ def get_units_for_ingredient(db: Session, ingredient_id: int):
 from sqlalchemy.exc import IntegrityError
 
 
+def get_all_ingredients(db: Session):
+    return db.query(Ingredient).all()
+
 def create_ingredient(db: Session, name: str):
     ingredient = Ingredient(name=name)
     db.add(ingredient)
