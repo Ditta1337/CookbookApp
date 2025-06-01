@@ -43,6 +43,7 @@ const EditRecipe = () => {
           date: getDate(),
         });
 
+        // TODO: rework .map((tag, i) => ...) to use the real id, not the index
         setRecipeTags(data.tags.map((tag, i) => ({ id: i, name: tag })));
         setRecipeSteps(data.steps.map((step, i) => ({ id: i, ...step })));
         setRecipeIngredients(data.ingredients.map((ing, i) => ({ id: i, ...ing })));

@@ -26,6 +26,17 @@ export const getFilteredRecipes = async (searchTerm, tagList) => {
   }
 };
 
+export const getAllRecipes = async () => {
+  try {
+    const response = await fetch("http://localhost:8000/recipes/all");
+    const data = await response.json();
+    return [data, false];
+  } catch (error) {
+    console.error("Błąd podczas pobierania przepisów:", error);
+    return [[], true];
+  }
+};
+
 export const getAllTags = async () => {
   const response = await fetch("http://localhost:8000/tags/get_all");
   const tags = await response.json();
@@ -135,3 +146,22 @@ export const sendNewTag = async (name) => {
   const response = await sendPostRequest("/tags/post", { name });
   return await response.json();
 };
+
+export const sendRecipeURL = async (url) => {
+  const response = await sendPostRequest(`/recipes/from_website?website_url=${url}`);
+  const { id } = await response.json();
+  return id;
+}
+
+export const sendRecipesFile = async (file) => {
+  let formData = new FormData();
+  formData.append('file', file);
+
+  // TODO: update the endpoint address
+  const response = await fetch("http://localhost:8000", {
+    method: "POST",
+    body: formData,
+  });
+
+  return await response.json();
+}
