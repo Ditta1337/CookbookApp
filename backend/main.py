@@ -6,6 +6,8 @@ import json
 from fastapi import FastAPI, Depends, HTTPException,UploadFile,File
 from sqlalchemy.orm import Session
 import uvicorn
+
+from KitchenAppliances import KitchenAppliance
 from backend import models, crud, schemas
 from backend.database import SessionLocal, engine
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,9 +15,25 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from typing import List
 
+def populate_appliance_tags():
+    db = SessionLocal()
+    try:
+        for appliance in KitchenAppliance:
+            existing_tag = crud.get_tag_by_name(db, appliance.value)
+            if existing_tag:
+                print(f"Already exists: {existing_tag.name} (id={existing_tag.id})")
+            else:
+                tag_create = schemas.TagCreate(name=appliance.value)
+                saved = crud.create_tag(db, tag_create)
+    except Exception as e:
+        print("Error while populating appliance tags:", str(e))
+    finally:
+        db.close()
+
 
 models.Base.metadata.create_all(bind=engine)
-
+print("Populating db with appliances tags")
+populate_appliance_tags()
 app = FastAPI()
 
 # CORS
@@ -184,6 +202,12 @@ def search_tags(pattern: str, limit: int = 10, db: Session = Depends(get_db)):
     return crud.get_tags_by_name_pattern(db, pattern, limit)
 
 
+@app.get("/tags/get_all_appliances", response_model=List[schemas.TagRead])
+def read_all_appliances(db: Session = Depends(get_db)):
+    appliances = crud.get_all_appliances(db)
+    print("returning appliances: ", appliances)
+    return appliances
+
 # Endpointy dla tabeli Ingredients
 @app.get("/ingredients/", response_model=List[schemas.IngredientCreate])
 def read_all_ingredients(db: Session = Depends(get_db)):
@@ -345,6 +369,7 @@ bundle_dir = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__))
 path_to_static = os.path.abspath(os.path.join(bundle_dir, './static'))
 app.mount("/", StaticFiles(directory=path_to_static, html=True), name="static")
 if __name__ == "__main__":
+
     uvicorn.run(
         app,
         host="127.0.0.1",
