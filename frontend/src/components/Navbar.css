@@ -2,6 +2,10 @@
   max-height: 0;
 }
 
+#export-recipes-methods:not(:hover) #rolldown-menu.closed {
+  max-height: 0;
+}
+
 #rolldown-menu {
   position: absolute;
   overflow: hidden;
@@ -21,7 +25,7 @@
   cursor: pointer;
 }
 
-.url-import:hover, #rolldown-menu>div>div:hover, #rolldown-menu label:hover {
+.menu-item:hover, #rolldown-menu>div>div:hover, #rolldown-menu label:hover {
   color: #a4a4a9;
 }
 

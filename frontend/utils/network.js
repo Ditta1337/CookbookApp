@@ -26,6 +26,17 @@ export const getFilteredRecipes = async (searchTerm, tagList) => {
   }
 };
 
+export const getAllRecipes = async () => {
+  try {
+    const response = await fetch("http://localhost:8000/recipes/all");
+    const data = await response.json();
+    return [data, false];
+  } catch (error) {
+    console.error("Błąd podczas pobierania przepisów:", error);
+    return [[], true];
+  }
+};
+
 export const getAllTags = async () => {
   const response = await fetch("http://localhost:8000/tags/get_all");
   const tags = await response.json();
