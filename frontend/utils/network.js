@@ -43,6 +43,13 @@ export const getAllTags = async () => {
   return tags;
 };
 
+export const getAllKitchenAppliances = async () => {
+  const response = await fetch("http://localhost:8000/tags/get_all_appliances");
+  if (!response.ok) throw new Error("Failed to fetch appliances");
+  const tags = await response.json();
+  return tags; // expects an array of { id, name } objects
+};
+
 const ingredientData = {
   ingredients: ["mąka", "mleko", "jajka"],
   units: ["g", "ml", "szklanka", "szt"],

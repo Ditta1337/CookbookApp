@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List
 from datetime import date
+
+from KitchenAppliances import KitchenAppliance
 from .models import *
 from .utils import import_recipe_from_website
 from . import schemas
@@ -543,6 +545,10 @@ def link_ingredient_to_recipe(db: Session, recipe_id: int, ingredient_id: int, q
 
 def get_all_tags(db: Session):
     return db.query(Tag).all()
+
+def get_all_appliances(db: Session):
+    appliance_names = [appliance.value for appliance in KitchenAppliance]
+    return db.query(Tag).filter(Tag.name.in_(appliance_names)).all()
 
 def get_tags_by_name_pattern(db: Session, pattern: str, limit: int):
     return db.query(Tag).filter(Tag.name.contains(pattern)).limit(limit).all()
