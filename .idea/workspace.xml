@@ -4,12 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9ab36c9e-eaf0-48f5-a2c8-a3ffce8f8b4d" name="Changes" comment="SCRUM 28 Finished the recipe tags update endpoint">
-      <change afterPath="$PROJECT_DIR$/frontend/src/consts.js" afterDir="false" />
+    <list default="true" id="9ab36c9e-eaf0-48f5-a2c8-a3ffce8f8b4d" name="Changes" comment="SCRUM 52, SCRUM 53: Dodano tagi sprzetów kuchennych do bazy oraz przcisk do wyboru predefiniowanych sprzętów kuchennych">
+      <change afterPath="$PROJECT_DIR$/backend/KitchenAppliances.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/Navbar.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Navbar.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/Navbar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Navbar.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/crud.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/crud.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/database.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/database.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/TagSelector.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/TagSelector.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/utils/network.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/utils/network.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -27,7 +28,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="export_to_file_and_gdrive" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -44,6 +45,10 @@
     &quot;accountId&quot;: &quot;4c8032d3-e4e8-45f2-93c5-90b320fb984e&quot;
   }
 }</component>
+  <component name="KubernetesApiPersistence"><![CDATA[{}]]></component>
+  <component name="KubernetesApiProvider"><![CDATA[{
+  "isMigrated": true
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 1
 }</component>
@@ -57,7 +62,7 @@
   "keyToString": {
     "Python.main.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "export__to__file",
+    "git-widget-placeholder": "adding__owned__kitchen__appliances",
     "last_opened_file_path": "C:/Users/wojci/Git repositories/CookbookApp",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -70,6 +75,36 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RunManager">
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="CookbookApp" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/backend" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/backend/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.main" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -96,9 +131,10 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="SCRUM 28 Finished the recipe tags update endpoint" />
-    <option name="LAST_COMMIT_MESSAGE" value="SCRUM 28 Finished the recipe tags update endpoint" />
+    <MESSAGE value="SCRUM 52, SCRUM 53: Dodano tagi sprzetów kuchennych do bazy oraz przcisk do wyboru predefiniowanych sprzętów kuchennych" />
+    <option name="LAST_COMMIT_MESSAGE" value="SCRUM 52, SCRUM 53: Dodano tagi sprzetów kuchennych do bazy oraz przcisk do wyboru predefiniowanych sprzętów kuchennych" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/CookbookApp$main.coverage" NAME="main Coverage Results" MODIFIED="1748778512674" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend" />
+    <SUITE FILE_PATH="coverage/CookbookApp$main.coverage" NAME="main Coverage Results" MODIFIED="1748807437428" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend" />
   </component>
 </project>
