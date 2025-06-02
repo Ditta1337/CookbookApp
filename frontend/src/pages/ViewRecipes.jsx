@@ -75,11 +75,13 @@ const ViewRecipes = () => {
           recipes.map((recipe, index) => (
             <Link key={index} to={`/recipes/${recipe.id}`}>
               <div className="bg-gray-300 rounded-xl shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-shadow">
-                <img
-                  src={recipe.img}
-                  alt={recipe.title}
-                  className="w-full h-40 object-cover p-2 rounded-xl"
-                />
+                {recipe.img && recipe.img.trim() !== "" && (
+                  <img
+                    src={recipe.img}
+                    alt={recipe.title}
+                    className="w-full h-40 object-cover p-2 rounded-xl"
+                  />
+                )}
                 <div className="flex flex-col px-4 pb-4 h-full">
                   <h3 className="text-lg font-bold mt-2">{recipe.title}</h3>
                   <p className="text-sm text-gray-600 mt-1 line-clamp-2">{recipe.description}</p>
@@ -89,7 +91,7 @@ const ViewRecipes = () => {
                         key={idx}
                         className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full"
                       >
-                        {tag}
+                        {tag.name}
                       </span>
                     ))}
                   </div>

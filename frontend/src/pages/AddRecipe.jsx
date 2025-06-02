@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Navbar from "../components/Navbar";
 import { TagSelector } from "../components/TagSelector";
 import { getAllIngredients, getAllTags, sendNewIngredient, sendNewTag } from "../../utils/network";
@@ -6,6 +6,8 @@ import { getAllIngredients, getAllTags, sendNewIngredient, sendNewTag } from "..
 const AddRecipe = () => {
   const recipeId = 0;
   const [stepId, setStepId] = React.useState(1);
+  const [base64Photo, setBase64Photo] = useState("");
+  const fileInputRef = useRef(null);
   const getDate = () => {
     const date = new Date();
     const year = date.getFullYear();
@@ -25,7 +27,6 @@ const AddRecipe = () => {
   const [recipeSteps, setRecipeSteps] = React.useState([
     {
       id: 0,
-      title: "",
       description: "",
     },
   ]);
@@ -63,7 +64,7 @@ const AddRecipe = () => {
     setRecipeIngredients(newIngredients);
   };
   const handleAddStep = () => {
-    setRecipeSteps([...recipeSteps, { id: stepId, title: "", description: "" }]);
+    setRecipeSteps([...recipeSteps, { id: stepId, description: "" }]);
     setStepId(stepId + 1);
   };
   const handleAddTag = async (newId, name) => {
@@ -85,6 +86,23 @@ const AddRecipe = () => {
     }
     setRecipeIngredients([...recipeIngredients, { id, name, quantity: 0, unit: "" }]);
   };
+
+  const handlePhotoChange = (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+
+  reader.onloadend = () => {
+    setBase64Photo(reader.result); // zapisujemy base64 string
+  };
+
+  reader.onerror = () => {
+    console.error("Błąd podczas odczytu pliku");
+  };
+};
+
   const handleDeleteSteps = (i) => {
     const deleteSteps = [...recipeSteps];
     deleteSteps.splice(i, 1);
@@ -109,8 +127,12 @@ const AddRecipe = () => {
     });
 
     setRecipeTags([]);
-    setRecipeSteps([{ id: 0, title: "", description: "" }]);
+    setRecipeSteps([{ id: 0, description: "" }]);
     setRecipeIngredients([]);
+    setBase64Photo("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = null;
+    }
 
     setStepId(1);
   };
@@ -121,9 +143,9 @@ const AddRecipe = () => {
       title: recipeData.name,
       description: recipeData.description,
       date: recipeData.date,
-      img: "omlet.jpg",
+      img: base64Photo || "omlet.jpg",
       tags: recipeTags.map((tag) => tag.name),
-      steps: recipeSteps.map(({ title, description }) => ({ title, description })),
+      steps: recipeSteps.map(({id, description }) => ({id, description})),
       ingredients: recipeIngredients.map(({ name, quantity, unit }) => ({
         name,
         quantity: Number(quantity),
@@ -132,6 +154,7 @@ const AddRecipe = () => {
     };
 
     try {
+      console.log("Wysyłane dane:", JSON.stringify(json, null, 2));
       const response = await fetch("http://localhost:8000/recipes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -169,6 +192,14 @@ const AddRecipe = () => {
               placeholder="Nazwa przepisu"
               onChange={handleInput}
               required
+            />
+            <label className="text-2xl font-semibold mt-4">Zdjęcie przepisu:</label>
+            <input
+              className="border-2 border-gray-300 rounded-md py-2 px-1 my-2"
+              type="file"
+              accept="image/*"
+              onChange={handlePhotoChange}
+              ref={fileInputRef}
             />
             <label className="text-2xl font-semibold mt-4">Składniki:</label>
             <TagSelector
@@ -256,19 +287,9 @@ const AddRecipe = () => {
             {recipeSteps.map((step, i) => (
               <div
                 key={step.id}
-                className="flex flex-row gap-2 border border-gray-300 rounded-md p-2 my-2 items-start"
+                className="flex flex-row gap-2 rounded-md px-4 py-1 my-1 items-stretch"
               >
                 <div className="flex-1 flex flex-col gap-2">
-                  <input
-                    className="border border-gray-300 rounded-md py-2 px-2"
-                    id="title"
-                    name="title"
-                    type="text"
-                    value={step.title}
-                    placeholder="Tytuł kroku"
-                    onChange={(event) => handleStepChange(event, i)}
-                    required
-                  />
                   <textarea
                     className="border border-gray-300 rounded-md py-2 px-2"
                     id="description"
@@ -282,7 +303,7 @@ const AddRecipe = () => {
                   />
                 </div>
                 <button
-                  className="delete-button bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded h-fit"
+                  className="delete-button bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded h-full"
                   type="button"
                   onClick={() => handleDeleteSteps(i)}
                   title="Usuń krok"
