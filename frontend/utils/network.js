@@ -17,7 +17,31 @@ export const getFilteredRecipes = async (searchTerm, tagList) => {
     `Searching recipe '${searchTerm}' with tags ${tagList}, but endpoint /recipes/all is called. Need to implement that.`
   );
   try {
-    const response = await fetch("http://localhost:8000/recipes/all");
+    const argumentsList = [searchTerm, ...tagList.map(tag => tag.name)].filter(
+      (arg) => arg && arg.trim() !== ""
+    );
+    let response;
+    // Jeśli lista argumentów jest pusta, użyj GET /recipes/all
+    if (argumentsList.length === 0) {
+      console.log("Brak kryteriów — pobieranie wszystkich przepisów.");
+      response = await fetch("http://localhost:8000/recipes/all");
+    }
+    else{
+      console.log("Szukane argumenty:", argumentsList);
+        response = await fetch(`http://localhost:8000/recipes/search/100?name=${searchTerm}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(argumentsList),
+    });
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Błąd odpowiedzi:", errorData);
+      return [[], true];
+    }
     const data = await response.json();
     return [data, false];
   } catch (error) {
