@@ -220,14 +220,10 @@ def create_recipe(db: Session, recipe_data: schemas.RecipeCreate):
         db.add(recipe_ingredient)
 
     for step_order, step_data in enumerate(recipe_data.steps, start=1):
-        step = db.query(Step).first()
-        if not step:
-            step = Step(
-                description=step_data.description
-            )
-            db.add(step)
-            db.commit()
-            db.refresh(step)
+        step = Step(description=step_data.description)
+        db.add(step)
+        db.commit()
+        db.refresh(step)
 
         recipe_step = RecipeSteps(
             recipe_id=recipe.id,
@@ -243,7 +239,7 @@ def create_recipe(db: Session, recipe_data: schemas.RecipeCreate):
 
 def create_recipe_from_website(db: Session, website_url: str):
     parsed_data = import_recipe_from_website(website_url)
-
+    print(parsed_data)
     recipe_schema = schemas.RecipeCreate(
         title=parsed_data["name"],
         description="",
@@ -289,7 +285,7 @@ def get_recipe_by_id(db: Session, id: int):
         "id": recipe.id,
         "title": recipe.name,
         "img": recipe.img,
-        "date":recipe.date,
+        "date": recipe.date,
         "description": recipe.description,
         "tags": [{"id": tag.id, "name": tag.name} for tag in tags],
         "steps": [{"id": step.id, "description": step.description} for step in steps],
@@ -457,6 +453,7 @@ from sqlalchemy.exc import IntegrityError
 def get_all_ingredients(db: Session):
     return db.query(Ingredient).all()
 
+
 def create_ingredient(db: Session, name: str):
     ingredient = Ingredient(name=name)
     db.add(ingredient)
@@ -491,6 +488,7 @@ def get_all_tags(db: Session):
 def get_all_appliances(db: Session):
     appliance_names = [appliance.value for appliance in KitchenAppliance]
     return db.query(Tag).filter(Tag.name.in_(appliance_names)).all()
+
 
 def get_tags_by_name_pattern(db: Session, pattern: str, limit: int):
     return db.query(Tag).filter(Tag.name.contains(pattern)).limit(limit).all()
