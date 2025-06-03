@@ -8,6 +8,7 @@ import { TagSelector } from "../components/TagSelector";
 const ViewRecipes = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [recipes, setRecipes] = useState([]);
+  const [cachedRecipes, setCachedRecipes] = useState([]);
   const [isError, setIsError] = useState(false);
   const [availableTags, setAvailableTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
@@ -25,7 +26,9 @@ const ViewRecipes = () => {
         setIsError(true);
         return;
       }
+      setIsError(false);
       setRecipes(filteredRecipes);
+      setCachedRecipes(filteredRecipes);
       console.log(filteredRecipes);
     }
 
@@ -41,13 +44,8 @@ const ViewRecipes = () => {
     fetchTags();
   }, []);
 
-  if (isError) {
-    return (
-      <div className="flex justify-center items-center h-[70vh]">
-        <img src={unplugged} alt="Błąd" className="w-24 h-24" />
-      </div>
-    );
-  }
+  const displayedRecipes = isError ? cachedRecipes : recipes;
+
 
   return (
     <div>
@@ -66,13 +64,18 @@ const ViewRecipes = () => {
           placeholder="Szukaj przepisu..."
         />
       </Navbar>
+      {isError && (
+        <div className="text-center text-red-600 font-semibold my-4">
+          Błąd podczas pobierania przepisów. Wyświetlono ostatnie poprawne wyniki.
+        </div>
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 p-6 mt-6">
-        {recipes.length === 0 ? (
+        {displayedRecipes.length === 0 ? (
           <div className="col-span-full text-center text-xl font-medium">
             Brak dostępnych przepisów
           </div>
         ) : (
-          recipes.map((recipe, index) => (
+          displayedRecipes.map((recipe, index) => (
             <Link key={index} to={`/recipes/${recipe.id}`}>
               <div className="bg-gray-300 rounded-xl shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-shadow">
                 {recipe.img && recipe.img.trim() !== "" && (
