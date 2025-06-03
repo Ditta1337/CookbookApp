@@ -7,9 +7,9 @@ from fastapi import FastAPI, Depends, HTTPException,UploadFile,File
 from sqlalchemy.orm import Session
 import uvicorn
 
-from . import models, crud, schemas
-from .KitchenAppliances import KitchenAppliance
-from .database import SessionLocal, engine
+from backend import models, crud, schemas
+from backend.KitchenAppliances import KitchenAppliance
+from backend.database import SessionLocal, engine
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -63,6 +63,16 @@ def create_recipe(recipe_data: schemas.RecipeCreate, db: Session = Depends(get_d
         return crud.get_recipe_by_id(db, recipe.id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+
+@app.delete("/recipes/delete/{id}")
+def create_recipe(id: int, db: Session = Depends(get_db)):
+    try:
+        message = crud.delete_recipe(db,id)
+        return message
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
 
 
 @app.post("/recipes/save_file")
