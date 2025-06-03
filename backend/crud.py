@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List
 from datetime import date
-
+from sqlalchemy import func
 from . import schemas
 from .KitchenAppliances import KitchenAppliance
 from .models import *
@@ -341,21 +341,21 @@ def get_recipes_by_names_and_tags(db: Session, name: str = None, tags: list[str]
         query = query.filter(Recipe.name.ilike(f"%{name}%"))
 
     if tags:
-        query = query.join(RecipeToTag).join(Tag).filter(Tag.name.in_(tags)).distinct()
+        tag_count = len(tags)
+        subquery = (
+            db.query(RecipeToTag.recipe_id)
+            .join(Tag)
+            .filter(Tag.name.in_(tags))
+            .group_by(RecipeToTag.recipe_id)
+            .having(func.count(Tag.id) == tag_count)
+            .subquery()
+        )
+
+        query = query.filter(Recipe.id.in_(subquery))
 
     recipes = query.limit(limit_).all()
 
     return [get_recipe_by_id(db, recipe.id) for recipe in recipes]
-
-
-def update_recipe(db: Session, id: int, recipe_data: schemas.RecipeCreate):
-    recipe = db.query(Recipe).filter(Recipe.id == id).first()
-    if recipe:
-        delete_recipe(db, id)
-        recipe = create_recipe(db, recipe_data)
-        return get_recipe_by_id(db, recipe.id)
-    else:
-        raise ValueError(f"Recipe with ID {id} not found.")
 
 
 def delete_recipe(db: Session, recipe_id: int):
