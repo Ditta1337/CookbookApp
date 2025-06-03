@@ -43,7 +43,7 @@ def import_recipe_from_website(recipe_url: str):
         dict: A dictionary containing the recipe with the following keys:
             - name (str): The name of the recipe.
             - ingredients (List[str]): A list of ingredient descriptions.
-            - steps (List[tuple[int, str, str]]): A list of preparation steps.
+            - steps (List[tuple[int, str, str, str]]): A list of preparation steps.
     """
     if recipe_url.startswith(
         ("https://www.kwestiasmaku.com/", "https://kwestiasmaku.com/")
@@ -89,7 +89,10 @@ def _import_recipe_from_website_kwestiasmaku(recipe_url: str):
     steps_tags = soup.select(".group-przepis ul li")
     steps = [tag.get_text(strip=True) for tag in steps_tags]
 
-    return {"name": recipe_name, "ingredients": ingredients, "steps": steps}
+    img_tag = soup.select_one(".node-przepis img")
+    img = img_tag["src"] if img_tag else ""
+
+    return {"name": recipe_name, "ingredients": ingredients, "steps": steps, "img": img}
 
 
 def _import_recipe_from_website_mojewypieki(recipe_url: str):
@@ -120,7 +123,10 @@ def _import_recipe_from_website_mojewypieki(recipe_url: str):
     steps_tags = soup.select('.article__content>p[style*="text-align: justify;"]')
     steps = [tag.get_text(strip=True) for tag in steps_tags]
 
-    return {"name": recipe_name, "ingredients": ingredients, "steps": steps}
+    img_tag = soup.select_one(".article__content img")
+    img = img_tag["src"] if img_tag else ""
+
+    return {"name": recipe_name, "ingredients": ingredients, "steps": steps, "img": img}
 
 
 def _import_recipe_from_website_aniagotuje(recipe_url: str):
@@ -149,7 +155,10 @@ def _import_recipe_from_website_aniagotuje(recipe_url: str):
     steps_tags = soup.select("div.step-text p")
     steps = [tag.get_text(strip=True) for tag in steps_tags]
 
-    return {"name": recipe_name, "ingredients": ingredients, "steps": steps}
+    img_tag = soup.select_one(".article-main-img img")
+    img = img_tag["src"] if img_tag else ""
+
+    return {"name": recipe_name, "ingredients": ingredients, "steps": steps, "img": img}
 
 
 if __name__ == "__main__":
