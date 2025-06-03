@@ -7,9 +7,9 @@ from fastapi import FastAPI, Depends, HTTPException,UploadFile,File
 from sqlalchemy.orm import Session
 import uvicorn
 
-from KitchenAppliances import KitchenAppliance
-from backend import models, crud, schemas
-from backend.database import SessionLocal, engine
+from . import models, crud, schemas
+from .KitchenAppliances import KitchenAppliance
+from .database import SessionLocal, engine
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles

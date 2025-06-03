@@ -4,10 +4,10 @@ from sqlalchemy import func
 from typing import List
 from datetime import date
 
-from KitchenAppliances import KitchenAppliance
+from . import schemas
+from .KitchenAppliances import KitchenAppliance
 from .models import *
 from .utils import import_recipe_from_website
-from . import schemas
 
 
 # Metody dla tabeli Ingredients
