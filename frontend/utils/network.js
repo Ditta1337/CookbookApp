@@ -17,12 +17,12 @@ export const getFilteredRecipes = async (searchTerm, tagList) => {
     `Searching recipe '${searchTerm}' with tags ${tagList}, but endpoint /recipes/all is called. Need to implement that.`
   );
   try {
-    const argumentsList = [searchTerm, ...tagList.map(tag => tag.name)].filter(
+    const argumentsList = [...tagList.map(tag => tag.name)].filter(
       (arg) => arg && arg.trim() !== ""
     );
     let response;
     // Jeśli lista argumentów jest pusta, użyj GET /recipes/all
-    if (argumentsList.length === 0) {
+    if (argumentsList.length === 0 && searchTerm.trim() === "") {
       console.log("Brak kryteriów — pobieranie wszystkich przepisów.");
       response = await fetch("http://localhost:8000/recipes/all");
     }
