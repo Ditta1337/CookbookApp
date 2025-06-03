@@ -94,7 +94,7 @@ const Recipe = () => {
           </ul>
         }
         right={steps.map((step, idx) => (
-          <Step key={idx} index={idx + 1} {...step} />
+          <Step key={idx} index={idx + 1} description={step.description} {...step} />
         ))}
         leftSize={30}
       />
