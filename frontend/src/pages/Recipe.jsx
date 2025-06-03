@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import TwoColumns from "../components/TwoColumns";
 import Step from "../components/Step";
@@ -16,6 +16,26 @@ const Recipe = () => {
   const [ingredients, setIngredients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const navigate = useNavigate(); 
+
+const handleDelete = async () => {
+  if (!window.confirm("Czy na pewno chcesz usunąć ten przepis?")) return;
+
+  try {
+    const response = await fetch(`http://localhost:8000/recipes/delete/${id}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      throw new Error("Nie udało się usunąć przepisu.");
+    }
+
+    navigate("/"); // przekierowanie po usunięciu
+  } catch (err) {
+    alert(`Błąd: ${err.message}`);
+  }
+};
 
   const fetchRecipeData = async () => {
     try {
@@ -76,6 +96,9 @@ const Recipe = () => {
         <div className="edit-button">
           <a href={`/recipes/${id}/edit`}>Edytuj przepis</a>
         </div>
+        <button className="delete-button" onClick={handleDelete}>
+          &minus;
+        </button>
       </div>
       <TwoColumns
         left={
