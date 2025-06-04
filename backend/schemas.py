@@ -48,6 +48,7 @@ class RecipeIngredientCreate(BaseModel):
 
 
 class IngredientCreate(BaseModel):
+    id: int
     name: str
 
     class Config:
@@ -55,6 +56,7 @@ class IngredientCreate(BaseModel):
 
 
 class UnitCreate(BaseModel):
+    id: int
     name: str
 
     class Config:

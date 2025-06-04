@@ -31,7 +31,7 @@ const EditRecipe = () => {
   const [recipeSteps, setRecipeSteps] = useState([{ id: 0, description: "" }]);
   const [recipeIngredients, setRecipeIngredients] = useState([]);
   const [availableIngredients, setAvailableIngredients] = useState([]);
-
+  
   useEffect(() => {
     const fetchRecipe = async () => {
       try {
@@ -45,11 +45,10 @@ const EditRecipe = () => {
           date: getDate(),
         });
 
-        // TODO: rework .map((tag, i) => ...) to use the real id, not the index
-        setRecipeTags(data.tags.map((tag, i) => ({ id: i, name: tag })));
-        setRecipeSteps(data.steps.map((step, i) => ({ id: i, description: step.description })));
-        setRecipeIngredients(data.ingredients.map((ing, i) => ({ id: i, ...ing })));
-        setBase64Photo(data.img);
+        setRecipeTags(data.tags);
+        setRecipeSteps(data.steps);
+        setRecipeIngredients(data.ingredients);
+        setBase64Photo(data.img)
 
         setStepId(data.steps.length);
       } catch (error) {
@@ -86,7 +85,7 @@ const EditRecipe = () => {
   const handleIngredientChange = (e, i) => {
     const { name, value } = e.target;
     const updated = [...recipeIngredients];
-    updated[i][name] = value;
+    updated.find(({ id }) => id === i)[name] = value;
     setRecipeIngredients(updated);
   };
 
@@ -116,37 +115,32 @@ const EditRecipe = () => {
   };
 
   const handleDeleteSteps = (i) => {
-    const updated = [...recipeSteps];
-    updated.splice(i, 1);
-    setRecipeSteps(updated);
-  };
-
-  const handleDeleteIngredient = (i) => {
-    const updated = [...recipeIngredients];
-    updated.splice(i, 1);
-    setRecipeIngredients(updated);
+    setRecipeSteps((steps) => steps.filter(({ id }) => id !== i));
   };
 
   const handleDeleteTag = (i) => {
-    const updated = [...recipeTags];
-    updated.splice(i, 1);
-    setRecipeTags(updated);
+    setRecipeTags((tags) => tags.filter(({ id }) => id !== i));
   };
+
+  const handleDeleteIngredient = (i) => {
+    setRecipeIngredients((ingredients) => ingredients.filter(({ id }) => id !== i));
+  };
+
   const handlePhotoChange = (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
+    const file = event.target.files[0];
+    if (!file) return;
 
-  const reader = new FileReader();
-  reader.readAsDataURL(file);
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
 
-  reader.onloadend = () => {
-    setBase64Photo(reader.result); // zapisujemy base64 string
+    reader.onloadend = () => {
+      setBase64Photo(reader.result); // zapisujemy base64 string
+    };
+
+    reader.onerror = () => {
+      console.error("Błąd podczas odczytu pliku");
+    };
   };
-
-  reader.onerror = () => {
-    console.error("Błąd podczas odczytu pliku");
-  };
-};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -223,16 +217,16 @@ const EditRecipe = () => {
               onAdd={({ id, name }) => handleAddIngredient(id, name)}
               onDelete={(i) => handleDeleteIngredient(i)}
             />
-            {recipeIngredients.map((ingredient, i) => (
+            {recipeIngredients.map(({ id, name, quantity, unit }) => (
               <div
-                key={ingredient.id}
+                key={id}
                 className="flex flex-wrap md:flex-nowrap gap-2 border border-gray-300 rounded-md p-2 my-2"
               >
                 <input
                   className="flex-1 border border-gray-300 rounded-md py-2 px-2"
                   name="name"
                   type="text"
-                  value={ingredient.name}
+                  value={name}
                   placeholder="Nazwa składnika"
                   disabled
                   required
@@ -241,23 +235,23 @@ const EditRecipe = () => {
                   className="w-24 border border-gray-300 rounded-md py-2 px-2"
                   name="quantity"
                   type="text"
-                  value={ingredient.quantity}
+                  value={quantity}
                   placeholder="Ilość"
-                  onChange={(e) => handleIngredientChange(e, i)}
+                  onChange={(e) => handleIngredientChange(e, id)}
                   required
                 />
                 <input
                   className="w-28 border border-gray-300 rounded-md py-2 px-2"
                   name="unit"
                   type="text"
-                  value={ingredient.unit}
+                  value={unit}
                   placeholder="Jednostka"
-                  onChange={(e) => handleIngredientChange(e, i)}
+                  onChange={(e) => handleIngredientChange(e, id)}
                   required
                 />
                 <button
                   type="button"
-                  onClick={() => handleDeleteIngredient(i)}
+                  onClick={() => handleDeleteIngredient(id)}
                   className="delete-button bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
                   title="Usuń składnik"
                 >
@@ -291,9 +285,9 @@ const EditRecipe = () => {
               required
             />
             <label className="text-2xl font-semibold">Kroki przygotowania:</label>
-            {recipeSteps.map((step, i) => (
+            {recipeSteps.map(({ id, description }) => (
               <div
-                key={step.id}
+                key={id}
                 className="flex flex-row gap-2 rounded-md px-4 py-1 my-1 items-stretch"
               >
                 {" "}
@@ -301,16 +295,16 @@ const EditRecipe = () => {
                   <textarea
                     className="border border-gray-300 rounded-md py-2 px-2"
                     name="description"
-                    value={step.description}
+                    value={description}
                     placeholder="Opis kroku"
                     rows={4}
-                    onChange={(e) => handleStepChange(e, i)}
+                    onChange={(e) => handleStepChange(e, id)}
                     required
                   />
                 </div>
                 <button
                   type="button"
-                  onClick={() => handleDeleteSteps(i)}
+                  onClick={() => handleDeleteSteps(id)}
                   className="delete-button bg-red-500 hover:bg-red-700 text-white font-bold px-4 rounded h-full"
                   title="Usuń krok"
                 >
