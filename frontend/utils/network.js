@@ -1,6 +1,6 @@
 const sendPostRequest = (endpoint, body) => {
   endpoint = endpoint[0] !== "/" ? endpoint : endpoint.substr(1);
-  return fetch(`http://localhost:8000/${endpoint}`, {
+  return fetch(`http://localhost:8000/api/${endpoint}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -8,7 +8,7 @@ const sendPostRequest = (endpoint, body) => {
 };
 
 export const getRecipeData = async (recipeId) => {
-  const res = await fetch(`http://localhost:8000/recipes/${recipeId}`);
+  const res = await fetch(`http://localhost:8000/api/recipes/${recipeId}`);
   return await res.json();
 };
 
@@ -24,11 +24,11 @@ export const getFilteredRecipes = async (searchTerm, tagList) => {
     // Jeśli lista argumentów jest pusta, użyj GET /recipes/all
     if (argumentsList.length === 0 && searchTerm.trim() === "") {
       console.log("Brak kryteriów — pobieranie wszystkich przepisów.");
-      response = await fetch("http://localhost:8000/recipes/all");
+      response = await fetch("http://localhost:8000/api/recipes/all");
     }
     else{
       console.log("Szukane argumenty:", argumentsList);
-        response = await fetch(`http://localhost:8000/recipes/search/100?name=${searchTerm}`, {
+        response = await fetch(`http://localhost:8000/api/recipes/search/100?name=${searchTerm}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -52,7 +52,7 @@ export const getFilteredRecipes = async (searchTerm, tagList) => {
 
 export const getAllRecipes = async () => {
   try {
-    const response = await fetch("http://localhost:8000/recipes/all");
+    const response = await fetch("http://localhost:8000/api/recipes/all");
     const data = await response.json();
     return [data, false];
   } catch (error) {
@@ -62,13 +62,13 @@ export const getAllRecipes = async () => {
 };
 
 export const getAllTags = async () => {
-  const response = await fetch("http://localhost:8000/tags/get_all");
+  const response = await fetch("http://localhost:8000/api/tags/get_all");
   const tags = await response.json();
   return tags;
 };
 
 export const getAllKitchenAppliances = async () => {
-  const response = await fetch("http://localhost:8000/tags/get_all");
+  const response = await fetch("http://localhost:8000/api/tags/get_all");
   if (!response.ok) throw new Error("Failed to fetch appliances");
   const tags = await response.json();
   return tags; // expects an array of { id, name } objects
@@ -174,12 +174,12 @@ export const deleteConversion = async () => {
 };
 
 export const sendNewTag = async (name) => {
-  const response = await sendPostRequest("/tags/post", { name });
+  const response = await sendPostRequest("/api/tags/post", { name });
   return await response.json();
 };
 
 export const sendRecipeURL = async (url) => {
-  const response = await sendPostRequest(`/recipes/from_website?website_url=${url}`);
+  const response = await sendPostRequest(`/api/recipes/from_website?website_url=${url}`);
   const { id } = await response.json();
   return id;
 }

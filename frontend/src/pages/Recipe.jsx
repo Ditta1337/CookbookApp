@@ -23,7 +23,7 @@ const handleDelete = async () => {
   if (!window.confirm("Czy na pewno chcesz usunąć ten przepis?")) return;
 
   try {
-    const response = await fetch(`http://localhost:8000/recipes/delete/${id}`, {
+    const response = await fetch(`http://localhost:8000/api/recipes/delete/${id}`, {
       method: "DELETE",
     });
 
@@ -39,7 +39,7 @@ const handleDelete = async () => {
 
   const fetchRecipeData = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/recipes/${id}`);
+      const response = await fetch(`http://localhost:8000/api/recipes/${id}`);
       if (!response.ok) {
         throw new Error(`Błąd serwera: ${response.status}`);
       }

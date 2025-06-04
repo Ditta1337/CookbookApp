@@ -3,7 +3,7 @@ import sys
 from http.client import HTTPException
 
 import json
-from fastapi import FastAPI, Depends, HTTPException,UploadFile,File
+from fastapi import FastAPI, Request, Depends, HTTPException,UploadFile,File
 from sqlalchemy.orm import Session
 import uvicorn
 
@@ -11,7 +11,7 @@ from backend import models, crud, schemas
 from backend.KitchenAppliances import KitchenAppliance
 from backend.database import SessionLocal, engine
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from typing import List
 
@@ -56,7 +56,7 @@ def get_db():
 
 
 # Recipes
-@app.post("/recipes", response_model=schemas.RecipeFullOut)
+@app.post("/api/recipes", response_model=schemas.RecipeFullOut)
 def create_recipe(recipe_data: schemas.RecipeCreate, db: Session = Depends(get_db)):
     try:
         recipe = crud.create_recipe(db, recipe_data)
@@ -65,7 +65,7 @@ def create_recipe(recipe_data: schemas.RecipeCreate, db: Session = Depends(get_d
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
 
-@app.delete("/recipes/delete/{id}")
+@app.delete("/api/recipes/delete/{id}")
 def create_recipe(id: int, db: Session = Depends(get_db)):
     try:
         message = crud.delete_recipe(db,id)
@@ -75,7 +75,7 @@ def create_recipe(id: int, db: Session = Depends(get_db)):
 
 
 
-@app.post("/recipes/save_file")
+@app.post("/api/recipes/save_file")
 def save_recipes_to_file(filepath: str, db: Session = Depends(get_db)):
     try:
 
@@ -95,7 +95,7 @@ def save_recipes_to_file(filepath: str, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/recipes/load_file")
+@app.post("/api/recipes/load_file")
 def load_recipes_from_file(file: UploadFile = File(...), db: Session = Depends(get_db)):
     try:
         if not file.filename.endswith(".json"):
@@ -125,7 +125,7 @@ def load_recipes_from_file(file: UploadFile = File(...), db: Session = Depends(g
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/recipes/from_website", response_model=schemas.RecipeFullOut)
+@app.post("/api/recipes/from_website", response_model=schemas.RecipeFullOut)
 def create_recipe_from_website(website_url: str, db: Session = Depends(get_db)):
     try:
         recipe = crud.create_recipe_from_website(db, website_url)
@@ -134,7 +134,7 @@ def create_recipe_from_website(website_url: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/recipes/all", response_model=List[schemas.RecipeFullOut])
+@app.get("/api/recipes/all", response_model=List[schemas.RecipeFullOut])
 def get_recipes(db: Session = Depends(get_db)):
     try:
         recipes = crud.get_all_recipes(db)
@@ -145,7 +145,7 @@ def get_recipes(db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/recipes/{id}", response_model=schemas.RecipeFullOut)
+@app.get("/api/recipes/{id}", response_model=schemas.RecipeFullOut)
 def get_recipe_by_id(id: int, db: Session = Depends(get_db)):
     try:
         recipe = crud.get_recipe_by_id(db, id)
@@ -156,7 +156,7 @@ def get_recipe_by_id(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.put("/recipes/update/{id}", response_model=schemas.RecipeFullOut)
+@app.put("/api/recipes/update/{id}", response_model=schemas.RecipeFullOut)
 def update_recipe(id: int, recipe_data: schemas.RecipeCreate, db: Session = Depends(get_db)):
     try:
         recipe = crud.get_recipe_by_id(db, id)
@@ -168,7 +168,7 @@ def update_recipe(id: int, recipe_data: schemas.RecipeCreate, db: Session = Depe
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/recipes/search/{limit}", response_model=List[schemas.RecipeFullOut])
+@app.post("/api/recipes/search/{limit}", response_model=List[schemas.RecipeFullOut])
 def search_recipes(name: str = None, tags: list[str] = None, limit: int = 10, db: Session = Depends(get_db)):
     try:
         recipes = crud.get_recipes_by_names_and_tags(db, name, tags, limit)
@@ -179,7 +179,7 @@ def search_recipes(name: str = None, tags: list[str] = None, limit: int = 10, db
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/recipes/by_tags", response_model=List[int])
+@app.post("/api/recipes/by_tags", response_model=List[int])
 def get_recipes_by_tags(tag_names: List[str], db: Session = Depends(get_db)):
     try:
         recipe_ids = crud.get_recipes_by_tags(db, tag_names)
@@ -192,7 +192,7 @@ def get_recipes_by_tags(tag_names: List[str], db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/tags/post", response_model=schemas.TagRead)
+@app.post("/api/tags/post", response_model=schemas.TagRead)
 def create_tag(tag: schemas.TagCreate, db: Session = Depends(get_db)):
     existing_tag = crud.get_tag_by_name(db, tag.name)
     if existing_tag:
@@ -202,30 +202,30 @@ def create_tag(tag: schemas.TagCreate, db: Session = Depends(get_db)):
     return new_tag
 
 
-@app.get("/tags/get_all", response_model=List[schemas.TagRead])
+@app.get("/api/tags/get_all", response_model=List[schemas.TagRead])
 def read_all_tags(db: Session = Depends(get_db)):
     return crud.get_all_tags(db)
 
 
-@app.get("/tags/search/", response_model=List[schemas.TagRead])
+@app.get("/api/tags/search/", response_model=List[schemas.TagRead])
 def search_tags(pattern: str, limit: int = 10, db: Session = Depends(get_db)):
     return crud.get_tags_by_name_pattern(db, pattern, limit)
 
 
-@app.get("/tags/get_all_appliances", response_model=List[schemas.TagRead])
+@app.get("/api/tags/get_all_appliances", response_model=List[schemas.TagRead])
 def read_all_appliances(db: Session = Depends(get_db)):
     appliances = crud.get_all_appliances(db)
     print("returning appliances: ", appliances)
     return appliances
 
 # Endpointy dla tabeli Ingredients
-@app.get("/ingredients/", response_model=List[schemas.IngredientCreate])
+@app.get("/api/ingredients/", response_model=List[schemas.IngredientCreate])
 def read_all_ingredients(db: Session = Depends(get_db)):
     ingredients = crud.get_all_ingredients(db)
     return ingredients
 
 
-@app.post("/ingredients/", response_model=schemas.IngredientCreate)
+@app.post("/api/ingredients/", response_model=schemas.IngredientCreate)
 def create_new_ingredient(ingredient: schemas.IngredientCreate, db: Session = Depends(get_db)):
     try:
         return crud.create_ingredient(db=db, name=ingredient.name)
@@ -233,7 +233,7 @@ def create_new_ingredient(ingredient: schemas.IngredientCreate, db: Session = De
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@app.get("/ingredients/{ingredient_name}/units", response_model=List[schemas.UnitCreate])
+@app.get("/api/ingredients/{ingredient_name}/units", response_model=List[schemas.UnitCreate])
 def get_units_for_ingredient(ingredient_name: str, db: Session = Depends(get_db)):
     ingredient = crud.get_ingredient_by_name(db, ingredient_name)
     if not ingredient:
@@ -244,13 +244,13 @@ def get_units_for_ingredient(ingredient_name: str, db: Session = Depends(get_db)
 
 
 # Endpointy dla tabeli Units
-@app.get("/units/", response_model=List[schemas.UnitCreate])
+@app.get("/api/units/", response_model=List[schemas.UnitCreate])
 def read_all_units(db: Session = Depends(get_db)):
     units = crud.get_all_units(db)
     return units
 
 
-@app.post("/units/", response_model=schemas.UnitCreate)
+@app.post("/api/units/", response_model=schemas.UnitCreate)
 def create_new_unit(unit: schemas.UnitCreate, db: Session = Depends(get_db)):
     try:
         return crud.create_unit(db=db, name=unit.name)
@@ -258,7 +258,7 @@ def create_new_unit(unit: schemas.UnitCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@app.get("/units/{id}", response_model=schemas.UnitCreate)
+@app.get("/api/units/{id}", response_model=schemas.UnitCreate)
 def read_unit(id: int, db: Session = Depends(get_db)):
     unit = crud.get_unit(db, id=id)
     if unit is None:
@@ -266,7 +266,7 @@ def read_unit(id: int, db: Session = Depends(get_db)):
     return unit
 
 
-@app.put("/units/{id}", response_model=schemas.UnitCreate)
+@app.put("/api/units/{id}", response_model=schemas.UnitCreate)
 def update_unit(id: int, name: str, db: Session = Depends(get_db)):
     try:
         return crud.update_unit(db=db, id=id, name=name)
@@ -274,7 +274,7 @@ def update_unit(id: int, name: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@app.delete("/units/{id}", response_model=dict)
+@app.delete("/api/units/{id}", response_model=dict)
 def delete_unit(id: int, db: Session = Depends(get_db)):
     try:
         return crud.delete_unit(db=db, id=id)
@@ -283,18 +283,18 @@ def delete_unit(id: int, db: Session = Depends(get_db)):
 
 
 # Endpointy dla tabeli UnitConversion
-@app.get("/unit_conversions/", response_model=List[schemas.UnitConversionCreate])
+@app.get("/api/unit_conversions/", response_model=List[schemas.UnitConversionCreate])
 def read_all_unit_conversions(db: Session = Depends(get_db)):
     unit_conversions = crud.get_all_unit_conversions(db)
     return unit_conversions
 
 
-@app.get("/convertible_units/{unit_id}", response_model=List[schemas.UnitConversionCreate])
+@app.get("/api/convertible_units/{unit_id}", response_model=List[schemas.UnitConversionCreate])
 def get_convertible_units_endpoint(unit_id: int, db: Session = Depends(get_db)):
     return crud.get_convertible_units(db, unit_id=unit_id)
 
 
-@app.post("/unit_conversions/", response_model=schemas.UnitConversionCreate)
+@app.post("/api/unit_conversions/", response_model=schemas.UnitConversionCreate)
 def create_new_unit_conversion(unit_conversion: schemas.UnitConversionCreate, db: Session = Depends(get_db)):
     try:
         return crud.create_unit_conversion(db=db, from_unit_id=unit_conversion.from_unit_id,
@@ -303,7 +303,7 @@ def create_new_unit_conversion(unit_conversion: schemas.UnitConversionCreate, db
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@app.get("/unit_conversions/{from_unit_id}/{to_unit_id}", response_model=schemas.UnitConversionCreate)
+@app.get("/api/unit_conversions/{from_unit_id}/{to_unit_id}", response_model=schemas.UnitConversionCreate)
 def read_unit_conversion(from_unit_id: int, to_unit_id: int, db: Session = Depends(get_db)):
     unit_conversion = crud.get_unit_conversion(db, from_unit_id=from_unit_id, to_unit_id=to_unit_id)
     if unit_conversion is None:
@@ -311,7 +311,7 @@ def read_unit_conversion(from_unit_id: int, to_unit_id: int, db: Session = Depen
     return unit_conversion
 
 
-@app.put("/unit_conversions/{from_unit_id}/{to_unit_id}", response_model=schemas.UnitConversionCreate)
+@app.put("/api/unit_conversions/{from_unit_id}/{to_unit_id}", response_model=schemas.UnitConversionCreate)
 def update_unit_conversion(from_unit_id: int, to_unit_id: int, multiplier: float, db: Session = Depends(get_db)):
     try:
         return crud.update_unit_conversion(db=db, from_unit_id=from_unit_id, to_unit_id=to_unit_id,
@@ -320,7 +320,7 @@ def update_unit_conversion(from_unit_id: int, to_unit_id: int, multiplier: float
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@app.delete("/unit_conversions/{from_unit_id}/{to_unit_id}", response_model=dict)
+@app.delete("/api/unit_conversions/{from_unit_id}/{to_unit_id}", response_model=dict)
 def delete_unit_conversion(from_unit_id: int, to_unit_id: int, db: Session = Depends(get_db)):
     try:
         return crud.delete_unit_conversion(db=db, from_unit_id=from_unit_id, to_unit_id=to_unit_id)
@@ -329,19 +329,19 @@ def delete_unit_conversion(from_unit_id: int, to_unit_id: int, db: Session = Dep
 
 
 # Endpointy dla tabeli IngredientUnitConversion
-@app.get("/ingredient_unit_conversions/", response_model=List[schemas.IngredientUnitConversionCreate])
+@app.get("/api/ingredient_unit_conversions/", response_model=List[schemas.IngredientUnitConversionCreate])
 def read_all_ingredient_unit_conversions(db: Session = Depends(get_db)):
     ingredient_unit_conversions = crud.get_all_ingredient_unit_conversions(db)
     return ingredient_unit_conversions
 
 
-@app.get("/convertible_ingredient_units/{ingredient_id}/{unit_id}",
+@app.get("/api/convertible_ingredient_units/{ingredient_id}/{unit_id}",
          response_model=List[schemas.IngredientUnitConversionCreate])
 def get_convertible_ingredient_units_endpoint(ingredient_id: int, unit_id: int, db: Session = Depends(get_db)):
     return crud.get_convertible_ingredient_units(db, ingredient_id=ingredient_id, unit_id=unit_id)
 
 
-@app.post("/ingredient_unit_conversions/", response_model=schemas.IngredientUnitConversionCreate)
+@app.post("/api/ingredient_unit_conversions/", response_model=schemas.IngredientUnitConversionCreate)
 def create_new_ingredient_unit_conversion(ingredient_unit_conversion: schemas.IngredientUnitConversionCreate,
                                           db: Session = Depends(get_db)):
     try:
@@ -353,7 +353,7 @@ def create_new_ingredient_unit_conversion(ingredient_unit_conversion: schemas.In
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@app.get("/ingredient_unit_conversions/{ingredient_id}/{from_unit_id}/{to_unit_id}",
+@app.get("/api/ingredient_unit_conversions/{ingredient_id}/{from_unit_id}/{to_unit_id}",
          response_model=schemas.IngredientUnitConversionCreate)
 def read_ingredient_unit_conversion(ingredient_id: int, from_unit_id: int, to_unit_id: int,
                                     db: Session = Depends(get_db)):
@@ -364,7 +364,7 @@ def read_ingredient_unit_conversion(ingredient_id: int, from_unit_id: int, to_un
     return ingredient_unit_conversion
 
 
-@app.delete("/ingredient_unit_conversions/{ingredient_id}/{from_unit_id}/{to_unit_id}", response_model=dict)
+@app.delete("/api/ingredient_unit_conversions/{ingredient_id}/{from_unit_id}/{to_unit_id}", response_model=dict)
 def delete_ingredient_unit_conversion(ingredient_id: int, from_unit_id: int, to_unit_id: int,
                                       db: Session = Depends(get_db)):
     try:
@@ -377,7 +377,20 @@ def delete_ingredient_unit_conversion(ingredient_id: int, from_unit_id: int, to_
 # Static files (na końcu!)
 bundle_dir = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
 path_to_static = os.path.abspath(os.path.join(bundle_dir, './static'))
+index_file = os.path.join(path_to_static, 'index.html')
 app.mount("/", StaticFiles(directory=path_to_static, html=True), name="static")
+@app.middleware("http")
+async def react_router_handler(request: Request, call_next):
+    path = request.url.path
+
+    # API, assets – przepuszczamy normalnie
+    if path.startswith("/api") or path.startswith("/assets"):
+        return await call_next(request)
+
+    # Wszystko inne – frontend
+    if os.path.exists(index_file):
+        return FileResponse(index_file)
+    return JSONResponse(status_code=404, content={"detail": "index.html not found"})
 if __name__ == "__main__":
 
     uvicorn.run(

@@ -155,7 +155,7 @@ const AddRecipe = () => {
 
     try {
       console.log("Wysyłane dane:", JSON.stringify(json, null, 2));
-      const response = await fetch("http://localhost:8000/recipes", {
+      const response = await fetch("http://localhost:8000/api/recipes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(json),

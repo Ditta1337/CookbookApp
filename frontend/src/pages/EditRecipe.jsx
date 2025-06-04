@@ -35,7 +35,7 @@ const EditRecipe = () => {
   useEffect(() => {
     const fetchRecipe = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/recipes/${recipeId}`);
+        const res = await fetch(`http://localhost:8000/api/recipes/${recipeId}`);
         const data = await res.json();
 
         setRecipeData({
@@ -166,7 +166,7 @@ const EditRecipe = () => {
     };
 
     try {
-      const response = await fetch(`http://localhost:8000/recipes/update/${recipeId}`, {
+      const response = await fetch(`http://localhost:8000/api/recipes/update/${recipeId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(json),
