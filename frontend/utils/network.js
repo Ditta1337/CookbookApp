@@ -9,7 +9,7 @@ const sendPostRequest = (endpoint, body) => {
 
 const sendDeleteRequest = (endpoint) => {
   endpoint = endpoint[0] !== "/" ? endpoint : endpoint.substr(1);
-  return fetch(`http://localhost:8000/${endpoint}`, {
+  return fetch(`http://localhost:8000/api/${endpoint}`, {
     method: "DELETE",
   });
 };
@@ -82,9 +82,9 @@ export const getAllKitchenAppliances = async () => {
 };
 
 export const getAllIngredientData = async () => {
-  const ingredientsResponse = await fetch("http://localhost:8000/ingredients/");
-  const unitsResponse = await fetch("http://localhost:8000/units/");
-  const conversionsResponse = await fetch("http://localhost:8000/ingredient_unit_conversions/");
+  const ingredientsResponse = await fetch("http://localhost:8000/api/ingredients/");
+  const unitsResponse = await fetch("http://localhost:8000/api/units/");
+  const conversionsResponse = await fetch("http://localhost:8000/api/ingredient_unit_conversions/");
 
   const ingredients = await ingredientsResponse.json();
   const units = await unitsResponse.json();
@@ -174,7 +174,7 @@ export const sendRecipesFile = async (file) => {
   let formData = new FormData();
   formData.append("file", file);
 
-  const response = await fetch("http://localhost:8000/recipes/load_file", {
+  const response = await fetch("http://localhost:8000/api/recipes/load_file", {
     method: "POST",
     body: formData,
   });

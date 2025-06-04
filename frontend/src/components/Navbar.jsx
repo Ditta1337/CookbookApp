@@ -124,7 +124,7 @@ const Navbar = ({ children }) => {
                             <div className="menu-item" onClick={handleURLImport}>Importuj z URL</div>
                             <div>
                                 <label onClick={() => fileInput.current.click()}>Importuj z pliku</label>
-                                <input type="file" ref={fileInput} style={{opacity: 0}}/>
+                                <input type="file" ref={fileInput} style={{opacity: 0}} onChange={() => setThisShouldntBeDone(d => !d)}/>
                                 {fileInput.current && (
                                     <div onClick={() => fileInput.current.click()}>
                                         {fileInput.current.value.length > 0 ? "Wybrano plik" : "Wybierz plik"}
@@ -143,9 +143,7 @@ const Navbar = ({ children }) => {
                         </a>
                         <div
                             id="rolldown-menu"
-                            className={
-                                fileInput.current && fileInput.current.value.length > 0 ? "opened" : "closed"
-                            }
+                            className="closed"
                         >
                             <div className="menu-item" onClick={handleExportToFile}>Eksport do pliku</div>
                             <div className="menu-item" onClick={handleExportToGoogleDrive}>Eksport do Google Drive</div>
