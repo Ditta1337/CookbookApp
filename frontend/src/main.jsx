@@ -14,10 +14,10 @@ createRoot(document.getElementById("root")).render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<App />} />
-        <Route path="/recipes/add" element={<AddRecipe />} />
-        <Route path="/recipes/:id" element={<Recipe />} />
-        <Route path="/recipes/:id/edit" element={<EditRecipe />} />
-        <Route path="/ingredient-creator" element={<IngredientCreator />} />
+        <Route path="/public/recipes/add" element={<AddRecipe />} />
+        <Route path="/public/recipes/:id" element={<Recipe />} />
+        <Route path="/public/recipes/:id/edit" element={<EditRecipe />} />
+        <Route path="/public/ingredient-creator" element={<IngredientCreator />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>

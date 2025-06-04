@@ -76,7 +76,7 @@ const ViewRecipes = () => {
           </div>
         ) : (
           displayedRecipes.map((recipe, index) => (
-            <Link key={index} to={`/recipes/${recipe.id}`}>
+            <Link key={index} to={`/public/recipes/${recipe.id}`}>
               <div className="bg-gray-300 rounded-xl shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-shadow">
                 {recipe.img && recipe.img.trim() !== "" && (
                   <img

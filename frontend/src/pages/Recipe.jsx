@@ -94,7 +94,7 @@ const handleDelete = async () => {
           <p>{description}</p>
         </div>
         <div className="edit-button">
-          <a href={`/recipes/${id}/edit`}>Edytuj przepis</a>
+          <a href={`/public/recipes/${id}/edit`}>Edytuj przepis</a>
         </div>
         <button className="delete-button" onClick={handleDelete}>
           &minus;

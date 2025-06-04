@@ -118,7 +118,7 @@ const Navbar = ({children}) => {
                 {children}
                 <div className="navbar-buttons">
                     <div id="recipe-creation-methods">
-                        <a className="navbar-button" href="/recipes/add">
+                        <a className="navbar-button" href="/public/recipes/add">
                             Dodaj przepis
                         </a>
                         <div
@@ -140,7 +140,7 @@ const Navbar = ({children}) => {
                             </div>
                         </div>
                     </div>
-                    <a className="navbar-button" href="/ingredient-creator/">
+                    <a className="navbar-button" href="/public/ingredient-creator/">
                         Kreator składników
                     </a>
                     <div id="export-recipes-methods">
