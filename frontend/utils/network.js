@@ -173,8 +173,7 @@ export const sendRecipesFile = async (file) => {
   let formData = new FormData();
   formData.append("file", file);
 
-  // TODO: update the endpoint address
-  const response = await fetch("http://localhost:8000", {
+  const response = await fetch("http://localhost:8000/recipes/load_file", {
     method: "POST",
     body: formData,
   });
