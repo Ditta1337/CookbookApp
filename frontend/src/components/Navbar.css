@@ -18,7 +18,7 @@
   flex-direction: column;
   border-bottom: 3px solid grey;
   padding: 6px;
-  background-color: rgba(77, 77, 77, 0.226);
+  background-color: #2d2d2d;
 }
 
 #rolldown-menu div, #rolldown-menu label {

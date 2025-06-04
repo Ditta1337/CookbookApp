@@ -37,16 +37,16 @@ const IngredientCreator = () => {
   const handleAddIngredient = async () => {
     setRequestPending(true);
     const response = await sendNewIngredient(newIngredient);
-    addIngredient(newIngredient);
-    alert(response);
+    addIngredient(response);
+    alert(response.name);
     setNewIngredient("");
     setRequestPending(false);
   };
 
-  const handleDeleteIngredient = async (ingredient) => {
+  const handleDeleteIngredient = async (id) => {
     setRequestPending(true);
-    const response = await deleteIngredient(ingredient);
-    removeIngredient(ingredient);
+    const response = await deleteIngredient(id);
+    removeIngredient(id);
     alert(response);
     setRequestPending(false);
   };
@@ -54,32 +54,32 @@ const IngredientCreator = () => {
   const handleAddUnit = async () => {
     setRequestPending(true);
     const response = await sendNewUnit(newUnit);
-    addUnit(newUnit);
-    alert(response);
+    addUnit(response);
+    alert(response.name);
     setNewUnit("");
     setRequestPending(false);
   };
 
-  const handleDeleteUnit = async (unit) => {
+  const handleDeleteUnit = async (id) => {
     setRequestPending(true);
-    const response = await deleteUnit(unit);
-    removeUnit(unit);
-    alert(response);
+    const response = await deleteUnit(id);
+    removeUnit(id);
+    alert(response.message);
     setRequestPending(false);
   };
 
   const handleAddConversion = async () => {
     const newConversion = {
-      ingredient: newConversionIngredient,
-      from: newConversionFrom,
-      to: newConversionTo,
-      rate: newConversionRate,
+      ingredient_id: Number(newConversionIngredient),
+      from_unit_id: Number(newConversionFrom),
+      to_unit_id: Number(newConversionTo),
+      multiplier: newConversionRate,
     };
 
     setRequestPending(true);
     const response = await sendNewConversion(newConversion);
-    addConversionRate(newConversion);
-    alert(response);
+    addConversionRate(response);
+    alert("sukces");
     setNewConversionIngredient("wybierz...");
     setNewConversionFrom("wybierz...");
     setNewConversionTo("wybierz...");
@@ -91,7 +91,7 @@ const IngredientCreator = () => {
     setRequestPending(true);
     const response = await deleteConversion(conversion);
     removeConversionRate(conversion);
-    alert(response);
+    alert(response.message);
     setRequestPending(false);
   };
 
@@ -110,10 +110,10 @@ const IngredientCreator = () => {
         left={
           <>
             <div className="creator-list ingredient-list">
-              {ingredients.map((ingr) => (
-                <div key={ingr}>
-                  <h2>{ingr}</h2>
-                  <button onClick={() => handleDeleteIngredient(ingr)}>X</button>
+              {ingredients.map(({ id, name }) => (
+                <div key={id}>
+                  <h2>{name}</h2>
+                  <button onClick={() => handleDeleteIngredient(id)}>X</button>
                 </div>
               ))}
               <div>
@@ -135,10 +135,10 @@ const IngredientCreator = () => {
               </div>
             </div>
             <div className="creator-list unit-list">
-              {units.map((unit) => (
-                <div key={unit}>
-                  <h2>{unit}</h2>
-                  <button onClick={() => handleDeleteUnit(unit)}>X</button>
+              {units.map(({ id, name }) => (
+                <div key={id}>
+                  <h2>{name}</h2>
+                  <button onClick={() => handleDeleteUnit(id)}>X</button>
                 </div>
               ))}
               <div>
@@ -164,30 +164,27 @@ const IngredientCreator = () => {
         right={
           <div className="conversion-panel">
             <div className="conversion-display">
-              {Object.keys(conversionRates).map((key) => (
-                <details key={key}>
-                  <summary>{key}</summary>
-                  {conversionRates[key].map(({ from, to, rate }) => (
-                    <div key={`${from}${to}${rate}`}>
-                      <button
-                        className="text-[12px]!"
-                        onClick={() =>
-                          handleDeleteConversionRate({
-                            ingredient: key,
-                            from,
-                            to,
-                            rate,
-                          })
-                        }
-                      >
-                        X
-                      </button>
-                      <p className="flex align-center inline-block h-full">
-                        1 {from} = {rate} {to}
-                      </p>
-                    </div>
-                  ))}
-                </details>
+              {conversionRates.map(({ ingredient, from, to, rate }) => (
+                <div key={`${ingredient}${from}${to}${rate}`}>
+                  <button
+                    className="text-[12px]!"
+                    onClick={() =>
+                      handleDeleteConversionRate({
+                        ingredient,
+                        from,
+                        to,
+                        rate,
+                      })
+                    }
+                  >
+                    X
+                  </button>
+                  <p className="flex align-center inline-block h-full">
+                    {ingredients.find(({ id }) => id == ingredient).name} 1{" "}
+                    {units.find(({ id }) => id == from).name} = {rate}{" "}
+                    {units.find(({ id }) => id == to).name}
+                  </p>
+                </div>
               ))}
             </div>
             <div className="conversion-creator">
@@ -198,8 +195,10 @@ const IngredientCreator = () => {
                   onChange={(e) => setNewConversionIngredient(e.target.value)}
                 >
                   <option>wybierz...</option>
-                  {ingredients.map((ingr) => (
-                    <option key={ingr}>{ingr}</option>
+                  {ingredients.map(({ id, name }) => (
+                    <option key={id} value={id}>
+                      {name}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -210,8 +209,10 @@ const IngredientCreator = () => {
                   onChange={(e) => setNewConversionFrom(e.target.value)}
                 >
                   <option>wybierz...</option>
-                  {units.map((unit) => (
-                    <option key={unit}>{unit}</option>
+                  {units.map(({ id, name }) => (
+                    <option key={id} value={id}>
+                      {name}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -223,9 +224,11 @@ const IngredientCreator = () => {
                 >
                   <option>wybierz...</option>
                   {units
-                    .filter((unit) => unit != newConversionFrom)
-                    .map((unit) => (
-                      <option key={unit}>{unit}</option>
+                    .filter(({ name }) => name != newConversionFrom)
+                    .map(({ id, name }) => (
+                      <option key={id} value={id}>
+                        {name}
+                      </option>
                     ))}
                 </select>
               </div>
@@ -238,24 +241,28 @@ const IngredientCreator = () => {
                 />
               </div>
             </div>
-            <p style={{ display }}>
-              Obecna konfiguracja:{" "}
-              <input
-                type="number"
-                value={quantity}
-                onChange={(e) => setQuantity(Math.max(0, e.target.value))}
-              />{" "}
-              {newConversionFrom} {newConversionIngredient} = {quantity * newConversionRate}{" "}
-              {newConversionTo} {newConversionIngredient}
-              <br />
-              <button
-                disabled={requestPending}
-                onClick={handleAddConversion}
-                className={requestPending ? "cursor-not-allowed! opacity-50" : ""}
-              >
-                Dodaj przelicznik
-              </button>
-            </p>
+            {display === "block" && (
+              <p style={{ display }}>
+                Obecna konfiguracja:{" "}
+                <input
+                  type="number"
+                  value={quantity}
+                  onChange={(e) => setQuantity(Math.max(0, e.target.value))}
+                />{" "}
+                {units.find(({ id }) => id == newConversionFrom).name}{" "}
+                {ingredients.find(({ id }) => id == newConversionIngredient).name} ={" "}
+                {quantity * newConversionRate} {units.find(({ id }) => id == newConversionTo).name}{" "}
+                {ingredients.find(({ id }) => id == newConversionIngredient).name}
+                <br />
+                <button
+                  disabled={requestPending}
+                  onClick={handleAddConversion}
+                  className={requestPending ? "cursor-not-allowed! opacity-50" : ""}
+                >
+                  Dodaj przelicznik
+                </button>
+              </p>
+            )}
           </div>
         }
         leftSize={50}

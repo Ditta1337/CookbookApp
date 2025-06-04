@@ -46,7 +46,6 @@ const ViewRecipes = () => {
 
   const displayedRecipes = isError ? cachedRecipes : recipes;
 
-
   return (
     <div>
       <Navbar>
@@ -75,26 +74,22 @@ const ViewRecipes = () => {
             Brak dostępnych przepisów
           </div>
         ) : (
-          displayedRecipes.map((recipe, index) => (
-            <Link key={index} to={`/public/recipes/${recipe.id}`}>
+          displayedRecipes.map(({ id, title, description, tags, img }) => (
+            <Link key={id} to={`/recipes/${id}`}>
               <div className="bg-gray-300 rounded-xl shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-shadow">
-                {recipe.img && recipe.img.trim() !== "" && (
-                  <img
-                    src={recipe.img}
-                    alt={recipe.title}
-                    className="w-full h-40 object-cover p-2 rounded-xl"
-                  />
+                {img && img.trim() !== "" && (
+                  <img src={img} alt={title} className="w-full h-40 object-cover p-2 rounded-xl" />
                 )}
                 <div className="flex flex-col px-4 pb-4 h-full">
-                  <h3 className="text-lg font-bold mt-2">{recipe.title}</h3>
-                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">{recipe.description}</p>
+                  <h3 className="text-lg font-bold mt-2">{title}</h3>
+                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">{description}</p>
                   <div className="flex flex-wrap mt-2 gap-1">
-                    {recipe.tags.map((tag, idx) => (
+                    {tags.map(({ name, id }) => (
                       <span
-                        key={idx}
+                        key={id}
                         className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full"
                       >
-                        {tag.name}
+                        {name}
                       </span>
                     ))}
                   </div>

@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
-import { mockIngredientData } from "./network";
+import { getAllIngredientData } from "./network";
 
 export const useIngredientsData = () => {
   const [ingredientsData, setIngredientsData] = useState({
-    ingredients: ["Ładowanie"],
-    units: ["Ładowanie"],
-    conversionRates: { Ładowanie: [{ from: "Ładowanie", to: "Ładowanie", rate: "Ładowanie" }] },
+    ingredients: [{ id: 0, name: "Ładowanie" }],
+    units: [{ id: 0, name: "Ładowanie" }],
+    conversionRates: [{ ingredient: 0, from: 0, to: 0, rate: 0 }],
   });
 
   useEffect(() => {
     async function fetchIngredientsData() {
-      const ingredientData = await mockIngredientData();
+      const ingredientData = await getAllIngredientData();
       setIngredientsData(ingredientData);
     }
 
@@ -24,41 +24,33 @@ export const useIngredientsData = () => {
         ...data,
         ingredients: [...data.ingredients, newIngredient],
       })),
-    removeIngredient: (ingredient) =>
+    removeIngredient: (iid) =>
       setIngredientsData((data) => ({
         ...data,
-        ingredients: data.ingredients.filter((ingr) => ingr != ingredient),
+        ingredients: data.ingredients.filter(({ id }) => id != iid),
       })),
     addUnit: (newUnit) =>
       setIngredientsData((data) => ({
         ...data,
         units: [...data.units, newUnit],
       })),
-    removeUnit: (unit) =>
+    removeUnit: (uid) =>
       setIngredientsData((data) => ({
         ...data,
-        units: data.units.filter((u) => u != unit),
+        units: data.units.filter(({ id }) => id != uid),
       })),
-    addConversionRate: (newConversionRate) => {
-      const { ingredient, from, to, rate } = newConversionRate;
+    addConversionRate: (newConversionRate) =>
       setIngredientsData((data) => ({
         ...data,
-        conversionRates: {
-          ...data.conversionRates,
-          [ingredient]: [...data.conversionRates[ingredient], { from, to, rate }],
-        },
-      }));
-    },
+        conversionRates: [...data.conversionRates, newConversionRate],
+      })),
     removeConversionRate: (conversionRate) => {
       const { ingredient, from, to, rate } = conversionRate;
       setIngredientsData((data) => ({
         ...data,
-        conversionRates: {
-          ...data.conversionRates,
-          [ingredient]: data.conversionRates[ingredient].filter(
-            (cr) => cr.from != from && cr.to != to && cr.rate != rate
-          ),
-        },
+        conversionRates: data.conversionRates.filter(
+          (cr) => cr.ingredient != ingredient && cr.from != from && cr.to != to && cr.rate != rate
+        ),
       }));
     },
   };

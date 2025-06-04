@@ -83,8 +83,8 @@ const handleDelete = async () => {
       <Navbar />
       <div className="recipe-header">
         <div className="tag-list">
-          {tags.map((tag) => (
-            <Tag key={tag} text={tag} />
+          {tags.map(({ id, name }) => (
+            <Tag key={id} text={name} />
           ))}
         </div>
         <div className="recipe-info">
@@ -116,8 +116,8 @@ const handleDelete = async () => {
             ))}
           </ul>
         }
-        right={steps.map((step, idx) => (
-          <Step key={idx} index={idx + 1} description={step.description} {...step} />
+        right={steps.map(({ id, description }, index) => (
+          <Step key={id} index={index + 1} description={description} />
         ))}
         leftSize={30}
       />

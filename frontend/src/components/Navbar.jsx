@@ -1,113 +1,107 @@
-import React, {useRef} from "react";
+import React, { useState, useRef } from "react";
 import "../index.css";
 import "./Navbar.css";
-import {getAllRecipes, sendRecipesFile, sendRecipeURL} from "../../utils/network";
-import {GDRIVE_CLIENT_ID, SCOPES} from "../consts.js";
+import { getAllRecipes, sendRecipesFile, sendRecipeURL } from "../../utils/network";
+import { GDRIVE_CLIENT_ID, SCOPES } from "../consts.js";
 
 /* global gapi */
 
-const Navbar = ({children}) => {
-    const fileInput = useRef(null);
+const Navbar = ({ children }) => {
+  const [thisShouldntBeDone, setThisShouldntBeDone] = useState(false);
 
-    const handleSendFile = async () => {
-        if (!fileInput.current) return;
-        if (fileInput.current.value.length === 0) alert("Nie wybrano pliku!");
-        const response = await sendRecipesFile(fileInput.current.files[0]);
-        // TODO: change response.ok to something that the server returns upon successful import
-        if (response.ok) alert("Załadowano przepisy!");
-        else alert("Błąd ładowania przepisów!");
-    }
+  const fileInput = useRef(null);
 
-    const handleURLImport = async () => {
-        const url = prompt("Podaj adres URL:");
-        const newId = await sendRecipeURL(url);
-        window.location.href = `/recipes/${newId}/edit`;
-    }
+  const handleSendFile = async () => {
+    if (!fileInput.current) return;
+    if (fileInput.current.value.length === 0) alert("Nie wybrano pliku!");
+    const response = await sendRecipesFile(fileInput.current.files[0]);
+    alert(response.message);
+  };
 
-    const handleExportToFile = async () => {
-        const [recipes, error] = await getAllRecipes()
-        if (error) return
+  const handleURLImport = async () => {
+    const url = prompt("Podaj adres URL:");
+    const newId = await sendRecipeURL(url);
+    window.location.href = `/recipes/${newId}/edit`;
+  };
+
+  const handleExportToFile = async () => {
+    const [recipes, error] = await getAllRecipes();
+    if (error) return;
+
+    const jsonFile = createJsonFile(recipes, "exported_recipes.json");
+    downloadFile(jsonFile);
+  };
+
+  const loadGapi = () =>
+    new Promise((resolve) => {
+      if (window.gapi) return resolve();
+      const script = document.createElement("script");
+      script.src = "https://apis.google.com/js/api.js";
+      script.onload = resolve;
+      document.body.appendChild(script);
+    });
+
+  const handleExportToGoogleDrive = async () => {
+    await loadGapi();
+
+    await new Promise((resolve) => gapi.load("client", resolve));
+    await gapi.client.init({
+      discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
+    });
+
+    const tokenClient = window.google.accounts.oauth2.initTokenClient({
+      client_id: GDRIVE_CLIENT_ID,
+      scope: SCOPES,
+      callback: async (tokenResponse) => {
+        const accessToken = tokenResponse.access_token;
+
+        const [recipes, error] = await getAllRecipes();
+        if (error) return;
 
         const jsonFile = createJsonFile(recipes, "exported_recipes.json");
-        downloadFile(jsonFile);
-    }
 
-    const loadGapi = () =>
-        new Promise((resolve) => {
-            if (window.gapi) return resolve()
-            const script = document.createElement("script");
-            script.src = "https://apis.google.com/js/api.js";
-            script.onload = resolve;
-            document.body.appendChild(script);
+        const metadata = {
+          name: jsonFile.name,
+          mimeType: "application/json",
+        };
+
+        const form = new FormData();
+        form.append("metadata", new Blob([JSON.stringify(metadata)], { type: "application/json" }));
+        form.append("file", jsonFile);
+
+        await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart", {
+          method: "POST",
+          headers: new Headers({ Authorization: `Bearer ${accessToken}` }),
+          body: form,
         });
 
+        alert("File uploaded to Google Drive!");
+      },
+    });
 
-    const handleExportToGoogleDrive = async () => {
-        await loadGapi();
+    tokenClient.requestAccessToken();
+  };
 
-        await new Promise((resolve) => gapi.load("client", resolve));
-        await gapi.client.init({
-            discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
-        });
+  const createJsonFile = (data, filename) => {
+    const jsonString = JSON.stringify(data, null, 2);
+    return new File([jsonString], filename, { type: "application/json" });
+  };
 
-        const tokenClient = window.google.accounts.oauth2.initTokenClient({
-            client_id: GDRIVE_CLIENT_ID,
-            scope: SCOPES,
-            callback: async (tokenResponse) => {
-                const accessToken = tokenResponse.access_token;
+  const downloadFile = (file, fileNameOverride = null) => {
+    const downloadName = file instanceof File ? file.name : fileNameOverride || "download.bin";
 
-                const [recipes, error] = await getAllRecipes();
-                if (error) return;
+    const url = URL.createObjectURL(file);
 
-                const jsonFile = createJsonFile(recipes, "exported_recipes.json");
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = downloadName;
 
-                const metadata = {
-                    name: jsonFile.name,
-                    mimeType: "application/json",
-                };
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
-                const form = new FormData();
-                form.append("metadata", new Blob([JSON.stringify(metadata)], { type: "application/json" }));
-                form.append("file", jsonFile);
-
-                await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart", {
-                    method: "POST",
-                    headers: new Headers({ Authorization: `Bearer ${accessToken}` }),
-                    body: form,
-                });
-
-                alert("File uploaded to Google Drive!");
-            },
-        });
-
-        tokenClient.requestAccessToken();
-    };
-
-
-
-    const createJsonFile = (data, filename) => {
-        const jsonString = JSON.stringify(data, null, 2);
-        return new File([jsonString], filename, {type: "application/json"});
-    };
-
-    const downloadFile = (file, fileNameOverride = null) => {
-        const downloadName =
-            file instanceof File
-                ? file.name
-                : fileNameOverride || "download.bin";
-
-        const url = URL.createObjectURL(file);
-
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = downloadName;
-
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        URL.revokeObjectURL(url);
-    };
+    URL.revokeObjectURL(url);
+  };
 
     return (
         <nav>
@@ -158,9 +152,9 @@ const Navbar = ({children}) => {
                         </div>
                     </div>
                 </div>
-            </div>
-        </nav>
-    );
+      </div>
+    </nav>
+  );
 };
 
 export default Navbar;

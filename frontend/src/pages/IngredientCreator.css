@@ -89,3 +89,7 @@
 .conversion-panel p > input {
     width: 60px;
 }
+
+option {
+    color: rgb(21, 21, 21);
+}
