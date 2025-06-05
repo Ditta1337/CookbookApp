@@ -21,7 +21,7 @@ const Navbar = ({ children }) => {
   const handleURLImport = async () => {
     const url = prompt("Podaj adres URL:");
     const newId = await sendRecipeURL(url);
-    window.location.href = `/recipes/${newId}/edit`;
+    window.location.href = `/public/recipes/${newId}/edit`;
   };
 
   const handleExportToFile = async () => {

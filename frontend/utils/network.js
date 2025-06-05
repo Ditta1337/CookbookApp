@@ -105,19 +105,13 @@ export const getAllIngredientData = async () => {
 };
 
 export const getAllIngredients = async () => {
-  return await Promise.resolve([
-    { name: "mąka", id: 1 },
-    { name: "mleko", id: 2 },
-    { name: "jajko", id: 3 },
-    { name: "woda", id: 4 },
-    { name: "cukier", id: 5 },
-  ]);
+  const response = await fetch("http://localhost:8000/api/ingredients/");
+  return await response.json();
 };
 
 export const sendNewIngredient = async (name) => {
-  const response = await sendPostRequest("/ingredients/", { name });
-  const newIngredient = await response.json();
-  return { ...newIngredient, id: Math.floor(Math.random() * 10000) };
+  const response = await sendPostRequest("/ingredients/", { name, id: -1 });
+  return await response.json();
 };
 
 export const deleteIngredient = async (id) => {
@@ -160,12 +154,12 @@ export const deleteConversion = async ({ ingredient, from, to }) => {
 };
 
 export const sendNewTag = async (name) => {
-  const response = await sendPostRequest("/api/tags/post", { name });
+  const response = await sendPostRequest("/tags/post", { name });
   return await response.json();
 };
 
 export const sendRecipeURL = async (url) => {
-  const response = await sendPostRequest(`/api/recipes/from_website?website_url=${url}`);
+  const response = await sendPostRequest(`/recipes/from_website?website_url=${url}`);
   const { id } = await response.json();
   return id;
 };

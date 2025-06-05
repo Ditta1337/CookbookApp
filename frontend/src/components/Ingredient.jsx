@@ -2,7 +2,7 @@ import React from "react";
 
 const Ingredient = ({ name, quantity, unit }) => {
   return (
-    <li>{name} - {quantity} {unit}</li>
+    <p>{name} - {quantity} {unit}</p>
   );
 };
 

@@ -119,11 +119,11 @@ const EditRecipe = () => {
   };
 
   const handleDeleteTag = (i) => {
-    setRecipeTags((tags) => tags.filter(({ id }) => id !== i));
+    setRecipeTags((tags) => tags.filter((_, id) => id !== i));
   };
 
   const handleDeleteIngredient = (i) => {
-    setRecipeIngredients((ingredients) => ingredients.filter(({ id }) => id !== i));
+    setRecipeIngredients((ingredients) => ingredients.filter((_, id) => id !== i));
   };
 
   const handlePhotoChange = (event) => {
@@ -217,7 +217,7 @@ const EditRecipe = () => {
               onAdd={({ id, name }) => handleAddIngredient(id, name)}
               onDelete={(i) => handleDeleteIngredient(i)}
             />
-            {recipeIngredients.map(({ id, name, quantity, unit }) => (
+            {recipeIngredients.map(({ id, name, quantity, unit }, idx) => (
               <div
                 key={id}
                 className="flex flex-wrap md:flex-nowrap gap-2 border border-gray-300 rounded-md p-2 my-2"
@@ -251,7 +251,7 @@ const EditRecipe = () => {
                 />
                 <button
                   type="button"
-                  onClick={() => handleDeleteIngredient(id)}
+                  onClick={() => handleDeleteIngredient(idx)}
                   className="delete-button bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
                   title="Usuń składnik"
                 >
