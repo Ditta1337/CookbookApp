@@ -233,13 +233,20 @@ def create_new_ingredient(ingredient: schemas.IngredientCreate, db: Session = De
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@app.get("/api/ingredients/{ingredient_name}/units", response_model=List[schemas.UnitCreate])
-def get_units_for_ingredient(ingredient_name: str, db: Session = Depends(get_db)):
-    ingredient = crud.get_ingredient_by_name(db, ingredient_name)
-    if not ingredient:
-        raise HTTPException(status_code=404, detail="Ingredient not found")
+# @app.get("/api/ingredients/{ingredient_name}/units", response_model=List[schemas.UnitCreate])
+# def get_units_for_ingredient(ingredient_name: str, db: Session = Depends(get_db)):
+#     ingredient = crud.get_ingredient_by_name(db, ingredient_name)
+#     if not ingredient:
+#         raise HTTPException(status_code=404, detail="Ingredient not found")
+#
+#     units = crud.get_units_for_ingredient(db, ingredient_id=ingredient.id)
+#     return units
 
-    units = crud.get_units_for_ingredient(db, ingredient_id=ingredient.id)
+@app.get("/api/ingredients/{ingredient_id}/units/", response_model=List[schemas.UnitCreate])
+def get_units_for_ingredient(ingredient_id: int, db: Session = Depends(get_db)):
+
+    units = crud.get_units_for_ingredient(db, ingredient_id=ingredient_id)
+    print(units)
     return units
 
 
@@ -261,6 +268,14 @@ def create_new_unit(unit: schemas.UnitCreate, db: Session = Depends(get_db)):
 @app.get("/api/units/{id}", response_model=schemas.UnitCreate)
 def read_unit(id: int, db: Session = Depends(get_db)):
     unit = crud.get_unit(db, id=id)
+    if unit is None:
+        raise HTTPException(status_code=404, detail="Unit not found")
+    return unit
+
+@app.get("/api/units/name/{unit_name}", response_model=schemas.UnitCreate)
+def read_unit_by_name(unit_name: str, db: Session = Depends(get_db)):
+    unit = crud.get_unit_by_name(db, name=unit_name)
+    print(unit)
     if unit is None:
         raise HTTPException(status_code=404, detail="Unit not found")
     return unit
@@ -344,6 +359,7 @@ def get_convertible_ingredient_units_endpoint(ingredient_id: int, unit_id: int, 
 @app.post("/api/ingredient_unit_conversions/", response_model=schemas.IngredientUnitConversionCreate)
 def create_new_ingredient_unit_conversion(ingredient_unit_conversion: schemas.IngredientUnitConversionCreate,
                                           db: Session = Depends(get_db)):
+    print("Creating ingredient unit conversion:", ingredient_unit_conversion)
     try:
         return crud.create_ingredient_unit_conversion(db=db, ingredient_id=ingredient_unit_conversion.ingredient_id,
                                                       from_unit_id=ingredient_unit_conversion.from_unit_id,
