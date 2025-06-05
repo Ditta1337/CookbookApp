@@ -1,18 +1,21 @@
 import subprocess
+import re
 
 def get_pid_using_port(port):
     try:
-        # Uruchom PowerShell i wyciągnij PID z portu
         result = subprocess.run(
-            ["powershell", "-Command", f"(Get-NetTCPConnection -LocalPort {port}).OwningProcess"],
-            capture_output=True,
-            text=True
+            ["netstat", "-aon"], capture_output=True, text=True
         )
-        pid_str = result.stdout.strip()
-        if not pid_str.isdigit():
-            print("Nie znaleziono procesu nasłuchującego na porcie", port)
-            return None
-        return int(pid_str)
+        for line in result.stdout.splitlines():
+            if f":{port} " in line:
+                # Format: Proto  Local Address  Foreign Address  State  PID
+                parts = line.split()
+                if len(parts) >= 5:
+                    pid = parts[-1]
+                    if pid.isdigit():
+                        return int(pid)
+        print(f"Nie znaleziono procesu nasłuchującego na porcie {port}")
+        return None
     except Exception as e:
         print("Błąd:", e)
         return None
