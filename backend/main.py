@@ -21,18 +21,14 @@ def populate_appliance_tags():
         for appliance in KitchenAppliance:
             existing_tag = crud.get_tag_by_name(db, appliance.value)
             if existing_tag:
-                print(f"Already exists: {existing_tag.name} (id={existing_tag.id})")
             else:
-                tag_create = schemas.TagCreate(name=appliance.value)
-                saved = crud.create_tag(db, tag_create)
+                saved = crud.create_tag(db, appliance.value)
     except Exception as e:
-        print("Error while populating appliance tags:", str(e))
     finally:
         db.close()
 
 
 models.Base.metadata.create_all(bind=engine)
-print("Populating db with appliances tags")
 populate_appliance_tags()
 app = FastAPI()
 
@@ -107,7 +103,6 @@ def load_recipes_from_file(file: UploadFile = File(...), db: Session = Depends(g
         if not isinstance(data, list):
             raise HTTPException(status_code=400, detail="Oczekiwano listy receptur w pliku JSON.")
 
-        print(data)
         for recipe in data:
             if "tags" in recipe:
                 recipe["tags"] = [tag["name"] for tag in recipe["tags"] if "name" in tag]
@@ -215,7 +210,6 @@ def search_tags(pattern: str, limit: int = 10, db: Session = Depends(get_db)):
 @app.get("/api/tags/get_all_appliances", response_model=List[schemas.TagRead])
 def read_all_appliances(db: Session = Depends(get_db)):
     appliances = crud.get_all_appliances(db)
-    print("returning appliances: ", appliances)
     return appliances
 
 # Endpointy dla tabeli Ingredients
@@ -233,13 +227,19 @@ def create_new_ingredient(ingredient: schemas.IngredientCreate, db: Session = De
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@app.get("/api/ingredients/{ingredient_name}/units", response_model=List[schemas.UnitCreate])
-def get_units_for_ingredient(ingredient_name: str, db: Session = Depends(get_db)):
-    ingredient = crud.get_ingredient_by_name(db, ingredient_name)
-    if not ingredient:
-        raise HTTPException(status_code=404, detail="Ingredient not found")
+# @app.get("/api/ingredients/{ingredient_name}/units", response_model=List[schemas.UnitCreate])
+# def get_units_for_ingredient(ingredient_name: str, db: Session = Depends(get_db)):
+#     ingredient = crud.get_ingredient_by_name(db, ingredient_name)
+#     if not ingredient:
+#         raise HTTPException(status_code=404, detail="Ingredient not found")
+#
+#     units = crud.get_units_for_ingredient(db, ingredient_id=ingredient.id)
+#     return units
 
-    units = crud.get_units_for_ingredient(db, ingredient_id=ingredient.id)
+@app.get("/api/ingredients/{ingredient_id}/units/", response_model=List[schemas.UnitCreate])
+def get_units_for_ingredient(ingredient_id: int, db: Session = Depends(get_db)):
+
+    units = crud.get_units_for_ingredient(db, ingredient_id=ingredient_id)
     return units
 
 
@@ -261,6 +261,13 @@ def create_new_unit(unit: schemas.UnitCreate, db: Session = Depends(get_db)):
 @app.get("/api/units/{id}", response_model=schemas.UnitCreate)
 def read_unit(id: int, db: Session = Depends(get_db)):
     unit = crud.get_unit(db, id=id)
+    if unit is None:
+        raise HTTPException(status_code=404, detail="Unit not found")
+    return unit
+
+@app.get("/api/units/name/{unit_name}", response_model=schemas.UnitCreate)
+def read_unit_by_name(unit_name: str, db: Session = Depends(get_db)):
+    unit = crud.get_unit_by_name(db, name=unit_name)
     if unit is None:
         raise HTTPException(status_code=404, detail="Unit not found")
     return unit

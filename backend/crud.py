@@ -1,7 +1,5 @@
 from sqlite3 import IntegrityError
 from sqlalchemy.orm import Session
-from sqlalchemy import func
-from typing import List
 from datetime import date
 from sqlalchemy import func
 from . import schemas
@@ -87,6 +85,7 @@ def get_all_unit_conversions(db: Session):
 
 
 def create_unit_conversion(db: Session, from_unit_id: int, to_unit_id: int, multiplier: float):
+    print(f"Creating unit conversion from {from_unit_id} to {to_unit_id} with multiplier {multiplier}")
     try:
         unit_conversion = UnitConversion(from_unit_id=from_unit_id, to_unit_id=to_unit_id, multiplier=multiplier)
         db.add(unit_conversion)
@@ -453,8 +452,11 @@ def get_ingredient_by_name(db: Session, name: str):
 
 
 def get_units_for_ingredient(db: Session, ingredient_id: int):
-    return db.query(Unit).join(IngredientUnitConversion).filter(
-        IngredientUnitConversion.ingredient_id == ingredient_id).all()
+    conversions = db.query(IngredientUnitConversion).filter_by(ingredient_id=ingredient_id).all()
+    unit_ids = [c.to_unit_id for c in conversions]
+    units = db.query(Unit).filter(Unit.id.in_(unit_ids)).all()
+    return units
+
 
 
 from sqlalchemy.exc import IntegrityError
