@@ -21,9 +21,12 @@ def populate_appliance_tags():
         for appliance in KitchenAppliance:
             existing_tag = crud.get_tag_by_name(db, appliance.value)
             if existing_tag:
+                print(f"Already exists: {existing_tag.name} (id={existing_tag.id})")
             else:
-                saved = crud.create_tag(db, appliance.value)
+                tag_create = schemas.TagCreate(name=appliance.value)
+                saved = crud.create_tag(db, tag_create)
     except Exception as e:
+        print("Error while populating appliance tags:", str(e))
     finally:
         db.close()
 
