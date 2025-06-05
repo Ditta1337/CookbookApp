@@ -75,10 +75,10 @@ const ViewRecipes = () => {
           </div>
         ) : (
           displayedRecipes.map(({ id, title, description, tags, img }) => (
-            <Link key={id} to={`/recipes/${id}`}>
+            <Link key={id} to={`/public/recipes/${id}`}>
               <div className="bg-gray-300 rounded-xl shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-shadow">
                 {img && img.trim() !== "" && (
-                  <img src={img} alt={title} className="w-full h-40 object-cover p-2 rounded-xl" />
+                  <img src={img} alt={title} className="w-full h-72 object-cover rounded-t-xl" />
                 )}
                 <div className="flex flex-col px-4 pb-4 h-full">
                   <h3 className="text-lg font-bold mt-2">{title}</h3>

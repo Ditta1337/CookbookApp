@@ -76,7 +76,7 @@ const handleDelete = async () => {
     return <div>Nie znaleziono przepisu.</div>;
   }
 
-  const { title, description, tags, steps } = recipe;
+  const { title, description, tags, steps, img } = recipe;
 
   return (
     <div>
@@ -102,6 +102,13 @@ const handleDelete = async () => {
       </div>
       <TwoColumns
         left={
+          <div>
+          <img
+            src={recipe.img}
+            alt={recipe.title}
+            className="w-full h-auto object-cover mb-4 rounded-xl"
+          />
+    
           <ul>
             {ingredients.map((ingredient, idx) => (
               <li key={idx} className="ingredient-item">
@@ -115,6 +122,7 @@ const handleDelete = async () => {
               </li>
             ))}
           </ul>
+          </div>
         }
         right={steps.map(({ id, description }, index) => (
           <Step key={id} index={index + 1} description={description} />
