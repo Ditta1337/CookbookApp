@@ -31,9 +31,13 @@ For backend, you need to install Python
 1. `cd frontend && npm run build`
 
 2. `cd ../backend && pyinstaller main.py --onefile --name CookBook --noconsole --add-data ../frontend/dist:./static`
+    for Windows use: pyinstaller main.py --onefile --name CookBook --noconsole --add-data "../frontend/dist;static instead
 
 3. You can move `CookBook` file from newly created `./dist` directory anywhere and it will work when you run it
 
 4. You can add the file itself or a shortcut to it to your `C:\Users\<USERNAME>\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup`
 
 5. Your web application should be accessible from `localhost:8000` after every system startup
+
+## How to build .exe used to exit application
+1. cd backend && pyinstaller --onefile kill_8000.py
