@@ -352,14 +352,19 @@ def get_convertible_ingredient_units_endpoint(ingredient_id: int, unit_id: int, 
     return crud.get_convertible_ingredient_units(db, ingredient_id=ingredient_id, unit_id=unit_id)
 
 
-@app.post("/api/ingredient_unit_conversions/", response_model=schemas.IngredientUnitConversionCreate)
+@app.post("/api/ingredient_unit_conversions/",response_model=schemas.IngredientUnitConversionCreate)
 def create_new_ingredient_unit_conversion(ingredient_unit_conversion: schemas.IngredientUnitConversionCreate,
                                           db: Session = Depends(get_db)):
     try:
-        return crud.create_ingredient_unit_conversion(db=db, ingredient_id=ingredient_unit_conversion.ingredient_id,
+        original=crud.create_ingredient_unit_conversion(db=db, ingredient_id=ingredient_unit_conversion.ingredient_id,
                                                       from_unit_id=ingredient_unit_conversion.from_unit_id,
                                                       to_unit_id=ingredient_unit_conversion.to_unit_id,
                                                       multiplier=ingredient_unit_conversion.multiplier)
+        reverse =crud.create_ingredient_unit_conversion(db=db, ingredient_id=ingredient_unit_conversion.ingredient_id,
+                                                      from_unit_id=ingredient_unit_conversion.to_unit_id,
+                                                      to_unit_id=ingredient_unit_conversion.from_unit_id,
+                                                      multiplier=1/ingredient_unit_conversion.multiplier)
+        return original
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
