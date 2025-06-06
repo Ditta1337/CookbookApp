@@ -24,7 +24,8 @@ def populate_appliance_tags():
                 print(f"Already exists: {existing_tag.name} (id={existing_tag.id})")
             else:
                 tag_create = schemas.TagCreate(name=appliance.value)
-                saved = crud.create_tag(db, tag_create)
+                saved = crud.create_tag(db, tag_create.name)
+                print(f"Saved new tag: {saved.name} (id={saved.id})")
     except Exception as e:
         print("Error while populating appliance tags:", str(e))
     finally:
